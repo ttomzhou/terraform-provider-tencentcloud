@@ -3,7 +3,12 @@
 FEATURES:
 
 * **New Resource**: `tencentcloud_ckafka_topic`
+* **New Resource**: `tencentcloud_image`
 * **New Data Source**: `tencentcloud_ckafka_topics` 
+
+ENHANCEMENTS:
+
+* Resource: `tencentcloud_instance` add new argument `data_disk_snapshot_id` to support data disk with SnapshotId([#469](https://github.com/tencentcloudstack/terraform-provider-tencentcloud/issues/469))
 
 ## 1.41.3 (September 3, 2020)
 
@@ -18,6 +23,7 @@ ENHANCEMENTS:
 ## 1.41.2 (August 28, 2020)
 
 BUG FIXES:
+
 * Resource: `tencentcloud_vpn_connection` fix `security_group_policy` update issue when apply repeatedly.
 * Resource: `tencentcloud_vpn_connection` fix inconsistent state when deleted on console.
 
