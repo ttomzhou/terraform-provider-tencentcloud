@@ -815,7 +815,7 @@ func (me *CvmService) ModifyImage(ctx context.Context, instanceId, imageName, im
 				}
 			}
 			log.Printf("[CRITAL]%s api[%s] fail, reason:%s", logId, request.GetAction(), e.Error())
-			return resource.NonRetryableError(e)
+			return resource.RetryableError(e)
 		}
 		return nil
 	})
@@ -851,7 +851,7 @@ func (me *CvmService) DescribeImageById(ctx context.Context, keyId string, isDel
 		ratelimit.Check(request.GetAction())
 		response, err := me.client.UseCvmClient().DescribeImages(request)
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return resource.RetryableError(err)
 		}
 		if response != nil && response.Response != nil {
 			if len(response.Response.ImageSet) == 0 && !isDelete {

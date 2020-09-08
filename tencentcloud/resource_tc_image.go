@@ -1,5 +1,5 @@
 /*
-Provide a resource to create a image instance.
+Provide a resource to manage image.
 
 Example Usage
 
@@ -7,7 +7,7 @@ Example Usage
 resource "tencentcloud_image" "image_snap" {
 	image_name   		= "image-snapshot-keep"
 	snapshot_ids 		= ["snap-nbp3xy1d", "snap-nvzu3dmh"]
-	force_power_off 	= true
+	force_poweroff 	= true
 	image_description 	= "create image with snapshot"
 }
 ```
@@ -73,16 +73,16 @@ func resourceTencentCloudImage() *schema.Resource {
 				Optional:    true,
 				Description: "Image Description.",
 			},
-			"force_power_off": {
+			"force_poweroff": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
-				Description: "Set whether to force shutdown during mirroring. The default value is false, when set to true, it means that the mirror will be made after shutdown",
+				Description: "Set whether to force shutdown during mirroring. The default value is false, when set to true, it means that the mirror will be made after shutdown.",
 			},
 			"sysprep": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: "Sysprep function under Windows. When creating a Windows image, you can select true or false to enable or disable the Syspre function",
+				Description: "Sysprep function under Windows. When creating a Windows image, you can select true or false to enable or disable the Syspre function.",
 			},
 			"data_disk_ids": {
 				Type:     schema.TypeSet,
@@ -108,7 +108,7 @@ func resourceTencentCloudImageCreate(d *schema.ResourceData, meta interface{}) e
 
 	request := cvm.NewCreateImageRequest()
 	request.ImageName = helper.String(d.Get("image_name").(string))
-	if d.Get("force_power_off").(bool) {
+	if d.Get("force_poweroff").(bool) {
 		request.ForcePoweroff = helper.String(TRUE)
 	} else {
 		request.ForcePoweroff = helper.String(FALSE)
@@ -152,7 +152,7 @@ func resourceTencentCloudImageCreate(d *schema.ResourceData, meta interface{}) e
 
 	imageId := ""
 	err := resource.Retry(writeRetryTimeout, func() *resource.RetryError {
-		ratelimit.Check("create")
+		ratelimit.Check(request.GetAction())
 		response, err := cvmService.client.UseCvmClient().CreateImage(request)
 		if err != nil {
 			log.Printf("[CRITAL]%s api[%s] fail, request body [%s], reason[%s]\n",
@@ -200,7 +200,7 @@ func resourceTencentCloudImageRead(d *schema.ResourceData, meta interface{}) err
 		return nil
 	}
 
-	_ = d.Set("force_power_off", d.Get("force_power_off").(bool))
+	_ = d.Set("force_poweroff", d.Get("force_poweroff").(bool))
 	_ = d.Set("image_name", image.ImageName)
 	if image.ImageDescription != nil && *image.ImageDescription != "" {
 		_ = d.Set("image_description", image.ImageDescription)
@@ -249,9 +249,6 @@ func resourceTencentCloudImageUpdate(d *schema.ResourceData, meta interface{}) e
 		if err := cvmService.ModifyImage(ctx, instanceId, imageName, imageDesc); nil != err {
 			return err
 		}
-
-		d.SetPartial("image_name")
-		d.SetPartial("image_description")
 	}
 
 	return resourceTencentCloudImageRead(d, meta)

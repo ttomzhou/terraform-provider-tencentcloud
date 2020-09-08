@@ -27,7 +27,7 @@ func TestAccTencentCloudImageResource(t *testing.T) {
 					testAccCheckImageExists(ImageSnap),
 					resource.TestCheckResourceAttr(ImageSnap, "image_name", "image-snapshot-keep"),
 					resource.TestCheckResourceAttr(ImageSnap, "snapshot_ids.#", "2"),
-					resource.TestCheckResourceAttr(ImageSnap, "force_power_off", "true"),
+					resource.TestCheckResourceAttr(ImageSnap, "force_poweroff", "true"),
 					resource.TestCheckResourceAttr(ImageSnap, "image_description", "create image with snapshot"),
 				),
 			},
@@ -36,7 +36,7 @@ func TestAccTencentCloudImageResource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(ImageSnap, "image_name", "image-snapshot-update-keep"),
 					resource.TestCheckResourceAttr(ImageSnap, "snapshot_ids.#", "2"),
-					resource.TestCheckResourceAttr(ImageSnap, "force_power_off", "false"),
+					resource.TestCheckResourceAttr(ImageSnap, "force_poweroff", "false"),
 					resource.TestCheckResourceAttr(ImageSnap, "image_description", "update image with snapshot"),
 				),
 			},
@@ -44,7 +44,7 @@ func TestAccTencentCloudImageResource(t *testing.T) {
 				ResourceName:            ImageSnap,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"force_power_off"},
+				ImportStateVerifyIgnore: []string{"force_poweroff"},
 			},
 			// use instance id
 			{
@@ -137,7 +137,7 @@ const (
 		resource "tencentcloud_image" "image_snap" {
   			image_name   		= "image-snapshot-keep"
   			snapshot_ids 		= ["snap-nbp3xy1d", "snap-nvzu3dmh"]
-			force_power_off 	= true
+			force_poweroff 		= true
 			image_description 	= "create image with snapshot"
 		}`
 
@@ -145,7 +145,7 @@ const (
 		resource "tencentcloud_image" "image_snap" {
   			image_name   		= "image-snapshot-update-keep"
   			snapshot_ids 		= ["snap-nbp3xy1d", "snap-nvzu3dmh"]
-  			force_power_off 	= false
+  			force_poweroff   	= false
   			image_description 	= "update image with snapshot"
 		}`
 
