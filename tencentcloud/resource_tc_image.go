@@ -117,7 +117,7 @@ func resourceTencentCloudImageCreate(d *schema.ResourceData, meta interface{}) e
 	if v, ok := d.GetOk("image_description"); ok {
 		request.ImageDescription = helper.String(v.(string))
 	}
-	if v, ok := d.GetOk("sysprep"); ok {
+	if v, ok := d.GetOkExists("sysprep"); ok {
 		value := v.(bool)
 		if value {
 			request.Sysprep = helper.String(TRUE)
@@ -200,7 +200,6 @@ func resourceTencentCloudImageRead(d *schema.ResourceData, meta interface{}) err
 		return nil
 	}
 
-	_ = d.Set("force_poweroff", d.Get("force_poweroff").(bool))
 	_ = d.Set("image_name", image.ImageName)
 	if image.ImageDescription != nil && *image.ImageDescription != "" {
 		_ = d.Set("image_description", image.ImageDescription)
@@ -222,10 +221,6 @@ func resourceTencentCloudImageRead(d *schema.ResourceData, meta interface{}) err
 		_ = d.Set("instance_id", helper.String(instanceId))
 	} else {
 		_ = d.Set("snapshot_ids", snapShotSysDisk)
-	}
-
-	if v, ok := d.GetOk("sysprep"); ok {
-		_ = d.Set("sysprep", v.(bool))
 	}
 
 	return nil
