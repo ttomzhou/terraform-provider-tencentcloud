@@ -1,14 +1,24 @@
-## 1.42.0 (Unreleased)
+## 1.42.1 (Unreleased)
 
 FEATURES:
 
-* **New Resource**: `tencentcloud_ckafka_topic`
 * **New Resource**: `tencentcloud_image`
-* **New Data Source**: `tencentcloud_ckafka_topics` 
 
 ENHANCEMENTS:
 
 * Resource: `tencentcloud_instance` add new argument `data_disk_snapshot_id` to support data disk with SnapshotId([#469](https://github.com/tencentcloudstack/terraform-provider-tencentcloud/issues/469))
+
+## 1.42.0 (September 8, 2020)
+
+FEATURES:
+
+* **New Resource**: `tencentcloud_ckafka_topic`
+* **New Data Source**: `tencentcloud_ckafka_topics` 
+
+ENHANCEMENTS:
+
+* Doc: optimize document directory.
+* Resource: `tencentcloud_mongodb_instance`, `tencentcloud_mongodb_sharding_instance` and `tencentcloud_mongodb_standby_instance` remove system reserved tag `project`.
 
 ## 1.41.3 (September 3, 2020)
 
