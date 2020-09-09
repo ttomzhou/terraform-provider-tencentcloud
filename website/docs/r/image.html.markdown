@@ -27,7 +27,7 @@ resource "tencentcloud_image" "image_snap" {
 The following arguments are supported:
 
 * `image_name` - (Required) Image name.
-* `data_disk_ids` - (Optional) Cloud disk id list, When creating a whole machine image based on an instance, specify the data disk Id contained in the image.
+* `data_disk_ids` - (Optional, ForceNew) Cloud disk id list, When creating a whole machine image based on an instance, specify the data disk Id contained in the image.
 * `force_poweroff` - (Optional) Set whether to force shutdown during mirroring. The default value is false, when set to true, it means that the mirror will be made after shutdown.
 * `image_description` - (Optional) Image Description.
 * `instance_id` - (Optional, ForceNew) Cloud server instance ID.
