@@ -7,7 +7,7 @@ Example Usage
 resource "tencentcloud_image" "image_snap" {
 	image_name   		= "image-snapshot-keep"
 	snapshot_ids 		= ["snap-nbp3xy1d", "snap-nvzu3dmh"]
-	force_poweroff 	= true
+	force_poweroff 		= true
 	image_description 	= "create image with snapshot"
 }
 ```
@@ -60,7 +60,6 @@ func resourceTencentCloudImage() *schema.Resource {
 			"snapshot_ids": {
 				Type:         schema.TypeSet,
 				Optional:     true,
-				Computed:     true,
 				ForceNew:     true,
 				ExactlyOneOf: []string{"instance_id"},
 				Elem: &schema.Schema{

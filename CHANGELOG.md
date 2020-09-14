@@ -1,12 +1,22 @@
-## 1.42.1 (Unreleased)
+## 1.42.2 (Unreleased)
 
 FEATURES:
 
 * **New Resource**: `tencentcloud_image`
+* **New Resource**: `tencentcloud_api_gateway_usage_plan`
+* **New Resource**: `tencentcloud_api_gateway_usage_plan_attachment`
+* **New Data Source**: `tencentcloud_api_gateway_usage_plans`
 
 ENHANCEMENTS:
 
-* Resource: `tencentcloud_instance` add new argument `data_disk_snapshot_id` to support data disk with SnapshotId([#469](https://github.com/tencentcloudstack/terraform-provider-tencentcloud/issues/469))
+* Resource: `tencentcloud_instance` add new argument `data_disk_snapshot_id` to support data disk with `SnapshotId`([#469](https://github.com/tencentcloudstack/terraform-provider-tencentcloud/issues/469))
+ 
+## 1.42.1 (September 10, 2020)
+
+BUG FIXES:
+* Resource: `tencentcloud_mongodb_instance` Fix the error of releasing associated resources when destroying mongodb postpaid instance.
+* Resource: `tencentcloud_mongodb_sharding_instance` Fix the error of releasing associated resources when destroying mongodb postpaid sharding instance.
+* Resource: `tencentcloud_mongodb_standby_instance` Fix the error of releasing associated resources when destroying mongodb postpaid standby instance.
 
 ## 1.42.0 (September 8, 2020)
 
@@ -33,7 +43,6 @@ ENHANCEMENTS:
 ## 1.41.2 (August 28, 2020)
 
 BUG FIXES:
-
 * Resource: `tencentcloud_vpn_connection` fix `security_group_policy` update issue when apply repeatedly.
 * Resource: `tencentcloud_vpn_connection` fix inconsistent state when deleted on console.
 
