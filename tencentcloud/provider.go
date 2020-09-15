@@ -414,6 +414,7 @@ VPN
 API Gateway
 	Data Source
 		tencentcloud_api_gateway_usage_plans
+		tencentcloud_api_gateway_ip_strategies
 
 	Resource
 		tencentcloud_api_gateway_usage_plan
@@ -649,6 +650,7 @@ func Provider() terraform.ResourceProvider {
 			"tencentcloud_ckafka_acls":                      dataSourceTencentCloudCkafkaAcls(),
 			"tencentcloud_ckafka_topics":                    dataSourceTencentCloudCkafkaTopics(),
 			"tencentcloud_api_gateway_usage_plans":          dataSourceTencentCloudAPIGatewayUsagePlans(),
+			"tencentcloud_api_gateway_ip_strategies":        dataSourceTencentCloudAPIGatewayIpStrategy(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
