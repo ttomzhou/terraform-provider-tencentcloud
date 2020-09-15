@@ -22,10 +22,10 @@ resource "tencentcloud_api_gateway_usage_plan" "plan" {
 }
 
 resource "tencentcloud_api_gateway_usage_plan_attachment" "attach_service" {
-  usage_plan_ids = [tencentcloud_api_gateway_usage_plan.plan.id]
-  service_id     = "service-ke4o2arm"
-  environment    = "test"
-  bind_type      = "SERVICE"
+  usage_plan_id = tencentcloud_api_gateway_usage_plan.plan.id
+  service_id    = "service-ke4o2arm"
+  environment   = "test"
+  bind_type     = "SERVICE"
 }
 ```
 
@@ -35,8 +35,8 @@ The following arguments are supported:
 
 * `environment` - (Required, ForceNew) Environment to be bound `test`,`prepub` or `release`.
 * `service_id` - (Required, ForceNew) ID of the service.
-* `usage_plan_ids` - (Required, ForceNew) ID list of the usage plan.
-* `api_ids` - (Optional, ForceNew) API id list. This parameter will be required when `bind_type` is `API`.
+* `usage_plan_id` - (Required, ForceNew) ID of the usage plan.
+* `api_id` - (Optional, ForceNew) API id. This parameter will be required when `bind_type` is `API`.
 * `bind_type` - (Optional, ForceNew) Binding type. Valid values: `API`, `SERVICE` (default value).
 
 ## Attributes Reference
@@ -52,6 +52,6 @@ In addition to all arguments above, the following attributes are exported:
 api gateway usage plan attachment can be imported using the id, e.g.
 
 ```
-$ terraform import tencentcloud_api_gateway_usage_plan_attachment.attach_service '{"api_id":"","bind_type":"SERVICE","environment":"test","service_id":"service-pkegyqmc","usage_plan_ids":["usagePlan-26t0l0w3"]}'
+$ terraform import tencentcloud_api_gateway_usage_plan_attachment.attach_service '{"api_id":"","bind_type":"SERVICE","environment":"test","service_id":"service-pkegyqmc","usage_plan_id":"usagePlan-26t0l0w3"}'
 ```
 

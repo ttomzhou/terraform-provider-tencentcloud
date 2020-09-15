@@ -25,7 +25,7 @@ func TestAccTencentCloudAPIGateWayUsagePlanAttachmentResource(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAPIGatewayUsagePlanAttachmentExists(testAPIGatewayUsagePlanAttachmentResourceKey),
 					resource.TestCheckResourceAttrSet(testAPIGatewayUsagePlanAttachmentResourceKey, "service_id"),
-					resource.TestCheckResourceAttr(testAPIGatewayUsagePlanAttachmentResourceKey, "usage_plan_ids.#", "1"),
+					resource.TestCheckResourceAttrSet(testAPIGatewayUsagePlanAttachmentResourceKey, "usage_plan_id"),
 					resource.TestCheckResourceAttr(testAPIGatewayUsagePlanAttachmentResourceKey, "environment", "test"),
 					resource.TestCheckResourceAttr(testAPIGatewayUsagePlanAttachmentResourceKey, "bind_type", "SERVICE"),
 				),
@@ -52,40 +52,34 @@ func testAccCheckAPIGatewayUsagePlanAttachmentDestroy(s *terraform.State) error 
 			return fmt.Errorf("id is broken,%s", err.Error())
 		}
 		var (
-			usagePlanIds = idMap["usage_plan_ids"].([]interface{})
-			serviceId    = idMap["service_id"].(string)
-			environment  = idMap["environment"].(string)
-			bindType     = idMap["bind_type"].(string)
+			usagePlanId = idMap["usage_plan_id"].(string)
+			serviceId   = idMap["service_id"].(string)
+			environment = idMap["environment"].(string)
+			bindType    = idMap["bind_type"].(string)
+			apiId       = idMap["api_id"].(string)
 
-			apiIds []interface{}
 			outErr error
 			has    bool
 		)
-		if v, ok := idMap["api_ids"]; ok {
-			if v != nil {
-				apiIds = v.([]interface{})
-			}
-		}
-		if len(usagePlanIds) == 0 || serviceId == "" || environment == "" || bindType == "" {
+
+		if usagePlanId == "" || serviceId == "" || environment == "" || bindType == "" {
 			return fmt.Errorf("id is broken")
 		}
-		if bindType == API_GATEWAY_TYPE_API && len(apiIds) == 0 {
+		if bindType == API_GATEWAY_TYPE_API && apiId == "" {
 			return fmt.Errorf("id is broken")
 		}
 
 		service := APIGatewayService{client: testAccProvider.Meta().(*TencentCloudClient).apiV3Conn}
 
-		for _, usagePlanId := range usagePlanIds {
-			_, has, outErr = service.DescribeUsagePlan(ctx, usagePlanId.(string))
-			if outErr != nil {
-				_, has, outErr = service.DescribeUsagePlan(ctx, usagePlanId.(string))
-			}
-			if outErr != nil {
-				return outErr
-			}
-			if !has {
-				return nil
-			}
+		_, has, outErr = service.DescribeUsagePlan(ctx, usagePlanId)
+		if outErr != nil {
+			_, has, outErr = service.DescribeUsagePlan(ctx, usagePlanId)
+		}
+		if outErr != nil {
+			return outErr
+		}
+		if !has {
+			return nil
 		}
 
 		_, has, outErr = service.DescribeService(ctx, serviceId)
@@ -119,21 +113,10 @@ func testAccCheckAPIGatewayUsagePlanAttachmentDestroy(s *terraform.State) error 
 			}
 		}
 
-		var (
-			usagePlanMap = make(map[string]bool)
-			apiIdMap     = make(map[string]bool)
-		)
-		for _, usagePlanId := range usagePlanIds {
-			usagePlanMap[usagePlanId.(string)] = true
-		}
-		for _, apiId := range apiIds {
-			apiIdMap[apiId.(string)] = true
-		}
-
 		for _, plan := range plans {
-			if usagePlanMap[*plan.UsagePlanId] && *plan.Environment == environment {
+			if *plan.UsagePlanId == usagePlanId && *plan.Environment == environment {
 				if bindType == API_GATEWAY_TYPE_API {
-					if plan.ApiId != nil && apiIdMap[*plan.ApiId] {
+					if plan.ApiId != nil && *plan.ApiId == apiId {
 						return fmt.Errorf("attachment  %s still exist on server", rs.Primary.ID)
 					}
 				} else {
@@ -161,40 +144,33 @@ func testAccCheckAPIGatewayUsagePlanAttachmentExists(n string) resource.TestChec
 			return fmt.Errorf("id is broken,%s", err.Error())
 		}
 		var (
-			usagePlanIds = idMap["usage_plan_ids"].([]interface{})
-			serviceId    = idMap["service_id"].(string)
-			environment  = idMap["environment"].(string)
-			bindType     = idMap["bind_type"].(string)
+			usagePlanId = idMap["usage_plan_id"].(string)
+			serviceId   = idMap["service_id"].(string)
+			environment = idMap["environment"].(string)
+			bindType    = idMap["bind_type"].(string)
+			apiId       = idMap["api_id"].(string)
 
-			apiIds []interface{}
 			outErr error
 			has    bool
 		)
-		if v, ok := idMap["api_ids"]; ok {
-			if v != nil {
-				apiIds = v.([]interface{})
-			}
-		}
-		if len(usagePlanIds) == 0 || serviceId == "" || environment == "" || bindType == "" {
+		if usagePlanId == "" || serviceId == "" || environment == "" || bindType == "" {
 			return fmt.Errorf("id is broken")
 		}
-		if bindType == API_GATEWAY_TYPE_API && len(apiIds) == 0 {
+		if bindType == API_GATEWAY_TYPE_API && apiId == "" {
 			return fmt.Errorf("id is broken")
 		}
 
 		service := APIGatewayService{client: testAccProvider.Meta().(*TencentCloudClient).apiV3Conn}
 
-		for _, usagePlanId := range usagePlanIds {
-			_, has, outErr = service.DescribeUsagePlan(ctx, usagePlanId.(string))
-			if outErr != nil {
-				_, has, outErr = service.DescribeUsagePlan(ctx, usagePlanId.(string))
-			}
-			if outErr != nil {
-				return outErr
-			}
-			if !has {
-				return fmt.Errorf("usage plan %s not exsit on server", usagePlanId.(string))
-			}
+		_, has, outErr = service.DescribeUsagePlan(ctx, usagePlanId)
+		if outErr != nil {
+			_, has, outErr = service.DescribeUsagePlan(ctx, usagePlanId)
+		}
+		if outErr != nil {
+			return outErr
+		}
+		if !has {
+			return fmt.Errorf("usage plan %s not exsit on server", usagePlanId)
 		}
 
 		_, has, outErr = service.DescribeService(ctx, serviceId)
@@ -228,21 +204,10 @@ func testAccCheckAPIGatewayUsagePlanAttachmentExists(n string) resource.TestChec
 			}
 		}
 
-		var (
-			usagePlanMap = make(map[string]bool)
-			apiIdMap     = make(map[string]bool)
-		)
-		for _, usagePlanId := range usagePlanIds {
-			usagePlanMap[usagePlanId.(string)] = true
-		}
-		for _, apiId := range apiIds {
-			apiIdMap[apiId.(string)] = true
-		}
-
 		for _, plan := range plans {
-			if usagePlanMap[*plan.UsagePlanId] && *plan.Environment == environment {
+			if *plan.UsagePlanId == usagePlanId && *plan.Environment == environment {
 				if bindType == API_GATEWAY_TYPE_API {
-					if plan.ApiId != nil && apiIdMap[*plan.ApiId] {
+					if plan.ApiId != nil && *plan.ApiId == apiId {
 						return nil
 					}
 				} else {
@@ -263,7 +228,7 @@ const testAccAPIGatewayUsagePlanAttachment = `
 	}
 
 	resource "tencentcloud_api_gateway_usage_plan_attachment" "attach_service" {
-  		usage_plan_ids = [tencentcloud_api_gateway_usage_plan.plan.id]
+  		usage_plan_id  = tencentcloud_api_gateway_usage_plan.plan.id
   		service_id     = "service-ke4o2arm"
   		environment    = "test"
   		bind_type      = "SERVICE"

@@ -1,7 +1,6 @@
 package tencentcloud
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"log"
@@ -590,28 +589,17 @@ func (me *APIGatewayService) DescribeApiUsagePlan(ctx context.Context,
 }
 
 func (me *APIGatewayService) BindEnvironment(ctx context.Context,
-	serviceId, environment, bindType string, usagePlanIds, apiIds []*string) (errRet error) {
+	serviceId, environment, bindType, usagePlanId, apiId string) (errRet error) {
 
 	logId := getLogId(ctx)
 	request := apigateway.NewBindEnvironmentRequest()
 	request.ServiceId = &serviceId
-	request.UsagePlanIds = usagePlanIds
+	request.UsagePlanIds = []*string{&usagePlanId}
 	request.Environment = &environment
 	request.BindType = &bindType
 
 	if bindType == API_GATEWAY_TYPE_API {
-		request.ApiIds = apiIds
-	}
-
-	var (
-		usagePlanIdBuf bytes.Buffer
-		apiIdBuf       bytes.Buffer
-	)
-	for _, v := range usagePlanIds {
-		usagePlanIdBuf.WriteString(*v)
-	}
-	for _, v := range apiIds {
-		apiIdBuf.WriteString(*v)
+		request.ApiIds = []*string{&apiId}
 	}
 
 	errRet = resource.Retry(writeRetryTimeout, func() *resource.RetryError {
@@ -628,7 +616,7 @@ func (me *APIGatewayService) BindEnvironment(ctx context.Context,
 		}
 
 		if !*response.Response.Result {
-			return resource.RetryableError(fmt.Errorf("%s attach to %s.%s fail", usagePlanIdBuf.String(), serviceId, apiIdBuf.String()))
+			return resource.RetryableError(fmt.Errorf("%s attach to %s.%s fail", usagePlanId, serviceId, apiId))
 		}
 
 		return nil
@@ -638,27 +626,16 @@ func (me *APIGatewayService) BindEnvironment(ctx context.Context,
 }
 
 func (me *APIGatewayService) UnBindEnvironment(ctx context.Context,
-	serviceId, environment, bindType string, usagePlanIds, apiIds []*string) (errRet error) {
+	serviceId, environment, bindType, usagePlanId, apiId string) (errRet error) {
 
 	request := apigateway.NewUnBindEnvironmentRequest()
 	request.ServiceId = &serviceId
-	request.UsagePlanIds = usagePlanIds
+	request.UsagePlanIds = []*string{&usagePlanId}
 	request.Environment = &environment
 	request.BindType = &bindType
 
 	if bindType == API_GATEWAY_TYPE_API {
-		request.ApiIds = apiIds
-	}
-
-	var (
-		usagePlanIdBuf bytes.Buffer
-		apiIdBuf       bytes.Buffer
-	)
-	for _, v := range usagePlanIds {
-		usagePlanIdBuf.WriteString(*v)
-	}
-	for _, v := range apiIds {
-		apiIdBuf.WriteString(*v)
+		request.ApiIds = []*string{&apiId}
 	}
 
 	errRet = resource.Retry(writeRetryTimeout, func() *resource.RetryError {
@@ -674,7 +651,7 @@ func (me *APIGatewayService) UnBindEnvironment(ctx context.Context,
 		}
 
 		if !*response.Response.Result {
-			return resource.RetryableError(fmt.Errorf("%s unattach to %s.%s fail", usagePlanIdBuf.String(), serviceId, apiIdBuf.String()))
+			return resource.RetryableError(fmt.Errorf("%s unattach to %s.%s fail", usagePlanId, serviceId, apiId))
 		}
 
 		return nil
