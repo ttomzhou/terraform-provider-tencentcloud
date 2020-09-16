@@ -43,8 +43,8 @@ func testAccTestAccTencentAPIGatewayIpStrategy() string {
 		}
 		
 		data "tencentcloud_api_gateway_ip_strategies" "name" {
-			service_id = "service-ohxqslqe"
-  			strategy_name = "plan_attachment_keep" 
-		}		
+			service_id 	  = "service-ohxqslqe"
+  			strategy_name = "test2"
+		}
 	`
 }

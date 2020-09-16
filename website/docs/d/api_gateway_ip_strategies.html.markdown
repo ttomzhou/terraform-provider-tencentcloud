@@ -25,7 +25,7 @@ The following arguments are supported:
 
 * `service_id` - (Required) ID of the service to be queried.
 * `result_output_file` - (Optional) Used to save results.
-* `strategy_name` - (Optional) Name of the ip strategy to be queried.
+* `strategy_name` - (Optional) The name of ip policy.
 
 ## Attributes Reference
 

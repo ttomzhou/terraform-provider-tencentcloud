@@ -376,6 +376,45 @@ func (me *APIGatewayService) DescribeIPStrategysStatus(ctx context.Context,
 	return
 }
 
+func (me *APIGatewayService) DescribeIPStrategies(ctx context.Context, serviceId, strategyId, environmentName string) (ipStrategies *apigateway.IPStrategy, errRet error) {
+	request := apigateway.NewDescribeIPStrategyRequest()
+
+	request.ServiceId = &serviceId
+	request.StrategyId = &strategyId
+	request.EnvironmentName = &environmentName
+
+	var (
+		limit   int64 = 20
+		offset  int64 = 0
+		apiList []*apigateway.DesApisStatus
+	)
+
+	request.Limit = &limit
+	request.Offset = &offset
+
+	for {
+		ratelimit.Check(request.GetAction())
+		response, err := me.client.UseAPIGatewayClient().DescribeIPStrategy(request)
+		if err != nil {
+			errRet = err
+			return
+		}
+		if response.Response.Result == nil {
+			errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+			return
+		}
+		if len(response.Response.Result.BindApis) > 0 {
+			apiList = append(apiList, response.Response.Result.BindApis...)
+		}
+		if len(response.Response.Result.BindApis) < int(limit) {
+			ipStrategies = response.Response.Result
+			ipStrategies.BindApis = apiList
+			return
+		}
+		offset += limit
+	}
+}
+
 func (me *APIGatewayService) BindSecretId(ctx context.Context,
 	usagePlanId string, apiKeyId string) (errRet error) {
 
@@ -401,11 +440,14 @@ func (me *APIGatewayService) BindSecretId(ctx context.Context,
 }
 
 func flattenOauthConfigMappings(v *apigateway.OauthConfig) map[string]interface{} {
-	return map[string]interface{}{
-		"login_redirect_url": *v.LoginRedirectUrl,
-		"public_key":         *v.PublicKey,
-		"token_location":     *v.TokenLocation,
+	if v != nil {
+		return map[string]interface{}{
+			"login_redirect_url": *v.LoginRedirectUrl,
+			"public_key":         *v.PublicKey,
+			"token_location":     *v.TokenLocation,
+		}
 	}
+	return nil
 }
 
 func (me *APIGatewayService) UnBindSecretId(ctx context.Context,

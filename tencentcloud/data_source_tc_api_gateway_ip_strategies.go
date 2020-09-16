@@ -34,7 +34,7 @@ func dataSourceTencentCloudAPIGatewayIpStrategy() *schema.Resource {
 			"strategy_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Name of the ip strategy to be queried.",
+				Description: "The name of ip policy.",
 			},
 			"result_output_file": {
 				Type:        schema.TypeString,
@@ -225,27 +225,41 @@ func dataSourceTencentCloudAPIGatewayIpStrategyRead(data *schema.ResourceData, m
 
 	for _, info := range infos {
 		var attachListInfo []map[string]interface{}
-		for _, status := range info.BindApis {
-			attachListInfo = append(attachListInfo, map[string]interface{}{
-				"service_id":                status.ServiceId,
-				"api_id":                    status.ApiId,
-				"api_desc":                  status.ApiDesc,
-				"api_name":                  status.ApiName,
-				"vpc_id":                    status.VpcId,
-				"uniq_vpc_id":               status.UniqVpcId,
-				"api_type":                  status.ApiType,
-				"protocol":                  status.Protocol,
-				"auth_type":                 status.AuthType,
-				"api_business_type":         status.ApiBusinessType,
-				"auth_relation_api_id":      status.AuthRelationApiId,
-				"tags":                      status.Tags,
-				"path":                      status.Path,
-				"method":                    status.Method,
-				"relation_business_api_ids": status.RelationBuniessApiIds,
-				"oauth_config":              flattenOauthConfigMappings(status.OauthConfig),
-				"modify_time":               status.ModifiedTime,
-				"create_time":               status.CreatedTime,
-			})
+
+		for _, env := range API_GATEWAY_SERVICE_ENVS {
+			var strategy *apigateway.IPStrategy
+			if err = resource.Retry(readRetryTimeout, func() *resource.RetryError {
+				strategy, err = apiGatewayService.DescribeIPStrategies(ctx, serviceId, *info.StrategyId, env)
+				if err != nil {
+					return retryError(err)
+				}
+				return nil
+			}); err != nil {
+				return err
+			}
+
+			for _, api := range strategy.BindApis {
+				attachListInfo = append(attachListInfo, map[string]interface{}{
+					"service_id":                api.ServiceId,
+					"api_id":                    api.ApiId,
+					"api_desc":                  api.ApiDesc,
+					"api_name":                  api.ApiName,
+					"vpc_id":                    api.VpcId,
+					"uniq_vpc_id":               api.UniqVpcId,
+					"api_type":                  api.ApiType,
+					"protocol":                  api.Protocol,
+					"auth_type":                 api.AuthType,
+					"api_business_type":         api.ApiBusinessType,
+					"auth_relation_api_id":      api.AuthRelationApiId,
+					"tags":                      api.Tags,
+					"path":                      api.Path,
+					"method":                    api.Method,
+					"relation_business_api_ids": api.RelationBuniessApiIds,
+					"oauth_config":              flattenOauthConfigMappings(api.OauthConfig),
+					"modify_time":               api.ModifiedTime,
+					"create_time":               api.CreatedTime,
+				})
+			}
 		}
 
 		infoMap := map[string]interface{}{
