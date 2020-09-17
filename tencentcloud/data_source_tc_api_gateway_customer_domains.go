@@ -124,7 +124,10 @@ func dataSourceTencentCloudAPIGatewayCustomerDomainRead(data *schema.ResourceDat
 	}
 
 	for _, info := range infos {
-		var pathMapping []map[string]interface{}
+		var (
+			pathMapping []map[string]interface{}
+			status      bool
+		)
 		if !*info.IsDefaultMapping && *info.DomainName != "" {
 
 			var mappings *apigateway.ServiceSubDomainMappings
@@ -145,9 +148,12 @@ func dataSourceTencentCloudAPIGatewayCustomerDomainRead(data *schema.ResourceDat
 				})
 			}
 		}
+		if *info.Status == 1 {
+			status = true
+		}
 		list = append(list, map[string]interface{}{
 			"domain_name":        info.DomainName,
-			"status":             info.Status,
+			"status":             status,
 			"certificate_id":     info.CertificateId,
 			"is_default_mapping": info.IsDefaultMapping,
 			"protocol":           info.Protocol,
