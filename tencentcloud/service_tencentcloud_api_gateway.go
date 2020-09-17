@@ -415,6 +415,59 @@ func (me *APIGatewayService) DescribeIPStrategies(ctx context.Context, serviceId
 	}
 }
 
+func (me *APIGatewayService) DescribeServiceSubDomains(ctx context.Context, serviceId string) (domainList []*apigateway.DomainSetList, errRet error) {
+	request := apigateway.NewDescribeServiceSubDomainsRequest()
+	request.ServiceId = &serviceId
+
+	var (
+		limit  int64 = 20
+		offset int64 = 0
+	)
+
+	request.Limit = &limit
+	request.Offset = &offset
+
+	for {
+		ratelimit.Check(request.GetAction())
+		response, err := me.client.UseAPIGatewayClient().DescribeServiceSubDomains(request)
+		if err != nil {
+			errRet = err
+			return
+		}
+		if response.Response.Result == nil {
+			errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+			return
+		}
+		if len(response.Response.Result.DomainSet) > 0 {
+			domainList = append(domainList, response.Response.Result.DomainSet...)
+		}
+		if len(response.Response.Result.DomainSet) < int(limit) {
+			return
+		}
+		offset += limit
+	}
+}
+
+func (me *APIGatewayService) DescribeServiceSubDomainMappings(ctx context.Context, serviceId, subDomain string) (info *apigateway.ServiceSubDomainMappings, errRet error) {
+	request := apigateway.NewDescribeServiceSubDomainMappingsRequest()
+	request.ServiceId = &serviceId
+	request.SubDomain = &subDomain
+
+	ratelimit.Check(request.GetAction())
+	response, err := me.client.UseAPIGatewayClient().DescribeServiceSubDomainMappings(request)
+	if err != nil {
+		errRet = err
+		return
+	}
+	if response.Response.Result == nil {
+		errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+		return
+	}
+
+	info = response.Response.Result
+	return
+}
+
 func (me *APIGatewayService) BindSecretId(ctx context.Context,
 	usagePlanId string, apiKeyId string) (errRet error) {
 
