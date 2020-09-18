@@ -54,6 +54,19 @@ Anti-DDoS(Dayu)
     tencentcloud_dayu_ddos_policy_case
     tencentcloud_dayu_l4_rule
     tencentcloud_dayu_l7_rule
+API GateWay
+  Resource
+  	tencentcloud_api_gateway_api
+	tencentcloud_api_gateway_service
+	tencentcloud_api_gateway_throttling_api
+	tencentcloud_api_gateway_throttling_service
+	tencentcloud_api_gateway_custom_domain
+
+  Data Source
+	tencentcloud_api_gateway_apis
+	tencentcloud_api_gateway_services
+	tencentcloud_api_gateway_throttling_services
+	tencentcloud_api_gateway_throttling_apis
 
 Auto Scaling(AS)
   Data Source
@@ -639,6 +652,10 @@ func Provider() terraform.ResourceProvider {
 			"tencentcloud_ckafka_users":                     dataSourceTencentCloudCkafkaUsers(),
 			"tencentcloud_ckafka_acls":                      dataSourceTencentCloudCkafkaAcls(),
 			"tencentcloud_ckafka_topics":                    dataSourceTencentCloudCkafkaTopics(),
+			"tencentcloud_api_gateway_throttling_services":  dataSourceTencentCloudAPIGatewayThrottlingServices(),
+			"tencentcloud_api_gateway_throttling_apis":      dataSourceTencentCloudAPIGatewayThrottlingApis(),
+			"tencentcloud_api_gateway_apis":                 dataSourceTencentCloudAPIGatewayAPIs(),
+			"tencentcloud_api_gateway_services":             dataSourceTencentCloudAPIGatewayServices(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -761,6 +778,11 @@ func Provider() terraform.ResourceProvider {
 			"tencentcloud_ckafka_user":                     resourceTencentCloudCkafkaUser(),
 			"tencentcloud_ckafka_acl":                      resourceTencentCloudCkafkaAcl(),
 			"tencentcloud_ckafka_topic":                    resourceTencentCloudCkafkaTopic(),
+			"tencentcloud_api_gateway_api":                 resourceTencentCloudAPIGatewayAPI(),
+			"tencentcloud_api_gateway_service":             resourceTencentCloudAPIGatewayService(),
+			"tencentcloud_api_gateway_throttling_api":      resourceTencentCloudAPIGatewayThrottlingAPI(),
+			"tencentcloud_api_gateway_throttling_service":  resourceTencentCloudAPIGatewayThrottlingService(),
+			"tencentcloud_api_gateway_custom_domain":       resourceTencentCloudAPIGatewayCustomDomain(),
 		},
 
 		ConfigureFunc: providerConfigure,
