@@ -3,14 +3,13 @@ package tencentcloud
 import (
 	"context"
 	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	apigateway "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/apigateway/v20180808"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/errors"
 	"github.com/tencentcloudstack/terraform-provider-tencentcloud/tencentcloud/connectivity"
 	"github.com/tencentcloudstack/terraform-provider-tencentcloud/tencentcloud/internal/helper"
 	"github.com/tencentcloudstack/terraform-provider-tencentcloud/tencentcloud/ratelimit"
+	"log"
 )
 
 type APIGatewayService struct {
@@ -449,17 +448,28 @@ func (me *APIGatewayService) DescribeServiceSubDomains(ctx context.Context, serv
 }
 
 func (me *APIGatewayService) DescribeServiceSubDomainMappings(ctx context.Context, serviceId, subDomain string) (info *apigateway.ServiceSubDomainMappings, errRet error) {
-	request := apigateway.NewDescribeServiceSubDomainMappingsRequest()
+	var (
+		request  = apigateway.NewDescribeServiceSubDomainMappingsRequest()
+		response *apigateway.DescribeServiceSubDomainMappingsResponse
+		err      error
+	)
+
 	request.ServiceId = &serviceId
 	request.SubDomain = &subDomain
 
-	ratelimit.Check(request.GetAction())
-	response, err := me.client.UseAPIGatewayClient().DescribeServiceSubDomainMappings(request)
+	err = resource.Retry(readRetryTimeout, func() *resource.RetryError {
+		ratelimit.Check(request.GetAction())
+		response, err = me.client.UseAPIGatewayClient().DescribeServiceSubDomainMappings(request)
+		if err != nil {
+			return retryError(err, InternalError)
+		}
+		return nil
+	})
 	if err != nil {
 		errRet = err
 		return
 	}
-	if response.Response.Result == nil {
+	if response.Response == nil || response.Response.Result == nil {
 		errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
 		return
 	}

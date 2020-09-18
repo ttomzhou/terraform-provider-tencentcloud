@@ -8,12 +8,10 @@ import (
 
 var testAPIGatewayDomainSourceName = "data.tencentcloud_api_gateway_customer_domains"
 
-//@TODO 检查资源状态
 func TestAccTencentAPIGatewayCustomerDomain(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		//CheckDestroy: testAccCheckAPIGate,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccTestAccTencentAPIGatewayDomain(),

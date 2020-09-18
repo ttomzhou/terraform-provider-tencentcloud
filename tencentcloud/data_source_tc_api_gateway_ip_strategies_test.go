@@ -8,6 +8,7 @@ import (
 
 var testAPIGatewayIpStrategySourceName = "data.tencentcloud_api_gateway_ip_strategies"
 
+// @TODO 添加检查IP策略是否存在，删除服务IP策略
 func TestAccTencentAPIGatewayIpStrategyDataSource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },

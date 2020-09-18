@@ -129,15 +129,9 @@ func dataSourceTencentCloudAPIGatewayCustomerDomainRead(data *schema.ResourceDat
 			status      bool
 		)
 		if !*info.IsDefaultMapping && *info.DomainName != "" {
-
 			var mappings *apigateway.ServiceSubDomainMappings
-			if err = resource.Retry(readRetryTimeout, func() *resource.RetryError {
-				mappings, err = apiGatewayService.DescribeServiceSubDomainMappings(ctx, serviceId, *info.DomainName)
-				if err != nil {
-					return retryError(err)
-				}
-				return nil
-			}); err != nil {
+			mappings, err = apiGatewayService.DescribeServiceSubDomainMappings(ctx, serviceId, *info.DomainName)
+			if err != nil {
 				return err
 			}
 
