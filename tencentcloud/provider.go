@@ -639,6 +639,7 @@ func Provider() terraform.ResourceProvider {
 			"tencentcloud_ckafka_users":                     dataSourceTencentCloudCkafkaUsers(),
 			"tencentcloud_ckafka_acls":                      dataSourceTencentCloudCkafkaAcls(),
 			"tencentcloud_ckafka_topics":                    dataSourceTencentCloudCkafkaTopics(),
+			"tencentcloud_api_gateway_api_keys":             dataSourceTencentCloudAPIGatewayAPIKeys(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -761,6 +762,10 @@ func Provider() terraform.ResourceProvider {
 			"tencentcloud_ckafka_user":                     resourceTencentCloudCkafkaUser(),
 			"tencentcloud_ckafka_acl":                      resourceTencentCloudCkafkaAcl(),
 			"tencentcloud_ckafka_topic":                    resourceTencentCloudCkafkaTopic(),
+			"tencentcloud_api_gateway_ip_strategy":         resourceTencentCloudAPIGatewayIPStrategy(),
+			"tencentcloud_api_gateway_strategy_attachment": resourceTencentCloudAPIGatewayStrategyAttachment(),
+			"tencentcloud_api_gateway_api_key":             resourceTencentCloudAPIGatewayAPIKey(),
+			"tencentcloud_api_gateway_api_key_attachment":  resourceTencentCloudAPIGatewayAPIKeyAttachment(),
 		},
 
 		ConfigureFunc: providerConfigure,
