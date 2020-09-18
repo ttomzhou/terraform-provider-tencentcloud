@@ -68,6 +68,15 @@ API GateWay
 	tencentcloud_api_gateway_throttling_services
 	tencentcloud_api_gateway_throttling_apis
 
+Audit
+  Data Source
+	tencentcloud_audit_cos_regions
+	tencentcloud_audit_key_alias
+	tencentcloud_audits
+
+  Resource
+	tencentcloud_audit
+
 Auto Scaling(AS)
   Data Source
     tencentcloud_as_scaling_configs
@@ -213,6 +222,7 @@ CVM
     tencentcloud_key_pair
     tencentcloud_placement_group
     tencentcloud_reserved_instance
+    tencentcloud_image
 
 Direct Connect(DC)
   Data Source
@@ -656,6 +666,9 @@ func Provider() terraform.ResourceProvider {
 			"tencentcloud_api_gateway_throttling_apis":      dataSourceTencentCloudAPIGatewayThrottlingApis(),
 			"tencentcloud_api_gateway_apis":                 dataSourceTencentCloudAPIGatewayAPIs(),
 			"tencentcloud_api_gateway_services":             dataSourceTencentCloudAPIGatewayServices(),
+			"tencentcloud_audit_cos_regions":                dataSourceTencentCloudAuditCosRegions(),
+			"tencentcloud_audit_key_alias":                  dataSourceTencentCloudAuditKeyAlias(),
+			"tencentcloud_audits":                           dataSourceTencentCloudAudits(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -783,6 +796,8 @@ func Provider() terraform.ResourceProvider {
 			"tencentcloud_api_gateway_throttling_api":      resourceTencentCloudAPIGatewayThrottlingAPI(),
 			"tencentcloud_api_gateway_throttling_service":  resourceTencentCloudAPIGatewayThrottlingService(),
 			"tencentcloud_api_gateway_custom_domain":       resourceTencentCloudAPIGatewayCustomDomain(),
+			"tencentcloud_audit":                           resourceTencentCloudAudit(),
+			"tencentcloud_image":                           resourceTencentCloudImage(),
 		},
 
 		ConfigureFunc: providerConfigure,
