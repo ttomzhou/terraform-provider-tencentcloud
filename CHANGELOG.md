@@ -1,4 +1,17 @@
 ## 1.43.1 (Unreleased)
+
+FEATURES:
+
+* **New Resource**: `tencentcloud_api_gateway_api`
+* **New Resource**: `tencentcloud_api_gateway_service`
+* **New Resource**: `tencentcloud_api_gateway_throttling_api`
+* **New Resource**: `tencentcloud_api_gateway_throttling_service`
+* **New Resource**: `tencentcloud_api_gateway_custom_domain`
+* **New Data Source**: `tencentcloud_api_gateway_apis` 
+* **New Data Source**: `tencentcloud_api_gateway_services` 
+* **New Data Source**: `tencentcloud_api_gateway_throttling_apis` 
+* **New Data Source**: `tencentcloud_api_gateway_throttling_services` 
+
 ## 1.43.0 (September 18, 2020)
 
 FEATURES:

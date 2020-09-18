@@ -54,6 +54,25 @@ Anti-DDoS(Dayu)
     tencentcloud_dayu_ddos_policy_case
     tencentcloud_dayu_l4_rule
     tencentcloud_dayu_l7_rule
+API GateWay
+  Resource
+  	tencentcloud_api_gateway_api
+	tencentcloud_api_gateway_service
+	tencentcloud_api_gateway_throttling_api
+	tencentcloud_api_gateway_throttling_service
+	tencentcloud_api_gateway_custom_domain
+	tencentcloud_api_gateway_usage_plan
+	tencentcloud_api_gateway_usage_plan_attachment
+
+  Data Source
+	tencentcloud_api_gateway_apis
+	tencentcloud_api_gateway_services
+	tencentcloud_api_gateway_throttling_services
+	tencentcloud_api_gateway_throttling_apis
+	tencentcloud_api_gateway_usage_plans
+	tencentcloud_api_gateway_ip_strategies
+	tencentcloud_api_gateway_customer_domains
+	tencentcloud_api_gateway_usage_plan_environments
 
 Audit
   Data Source
@@ -418,18 +437,8 @@ VPN
   Resource
     tencentcloud_vpn_customer_gateway
     tencentcloud_vpn_gateway
-    tencentcloud_vpn_connection
+	tencentcloud_vpn_connection
 
-API Gateway
-	Data Source
-		tencentcloud_api_gateway_usage_plans
-		tencentcloud_api_gateway_ip_strategies
-		tencentcloud_api_gateway_customer_domains
-		tencentcloud_api_gateway_usage_plan_environments
-
-	Resource
-		tencentcloud_api_gateway_usage_plan
-		tencentcloud_api_gateway_usage_plan_attachment
 */
 package tencentcloud
 
@@ -667,6 +676,10 @@ func Provider() terraform.ResourceProvider {
 			"tencentcloud_api_gateway_ip_strategies":           dataSourceTencentCloudAPIGatewayIpStrategy(),
 			"tencentcloud_api_gateway_customer_domains":        dataSourceTencentCloudAPIGatewayCustomerDomains(),
 			"tencentcloud_api_gateway_usage_plan_environments": dataSourceTencentCloudAPIGatewayUsagePlanEnvironments(),
+			"tencentcloud_api_gateway_throttling_services":     dataSourceTencentCloudAPIGatewayThrottlingServices(),
+			"tencentcloud_api_gateway_throttling_apis":         dataSourceTencentCloudAPIGatewayThrottlingApis(),
+			"tencentcloud_api_gateway_apis":                    dataSourceTencentCloudAPIGatewayAPIs(),
+			"tencentcloud_api_gateway_services":                dataSourceTencentCloudAPIGatewayServices(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -793,6 +806,11 @@ func Provider() terraform.ResourceProvider {
 			"tencentcloud_image":                             resourceTencentCloudImage(),
 			"tencentcloud_api_gateway_usage_plan":            resourceTencentCloudAPIGatewayUsagePlan(),
 			"tencentcloud_api_gateway_usage_plan_attachment": resourceTencentCloudAPIGatewayUsagePlanAttachment(),
+			"tencentcloud_api_gateway_api":                   resourceTencentCloudAPIGatewayAPI(),
+			"tencentcloud_api_gateway_service":               resourceTencentCloudAPIGatewayService(),
+			"tencentcloud_api_gateway_throttling_api":        resourceTencentCloudAPIGatewayThrottlingAPI(),
+			"tencentcloud_api_gateway_throttling_service":    resourceTencentCloudAPIGatewayThrottlingService(),
+			"tencentcloud_api_gateway_custom_domain":         resourceTencentCloudAPIGatewayCustomDomain(),
 		},
 
 		ConfigureFunc: providerConfigure,
