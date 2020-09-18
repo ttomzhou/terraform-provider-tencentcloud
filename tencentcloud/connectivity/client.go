@@ -448,19 +448,6 @@ func (me *TencentCloudClient) UseCkafkaClient() *ckafka.Client {
 	return me.ckafkaConn
 }
 
-// UseAPIGatewayClient returns apigateway client for service
-func (me *TencentCloudClient) UseAPIGatewayClient() *apigateway.Client {
-	if me.apiGatewayConn != nil {
-		return me.apiGatewayConn
-	}
-
-	cpf := me.NewClientProfile(300)
-	me.apiGatewayConn, _ = apigateway.NewClient(me.Credential, me.Region, cpf)
-	me.apiGatewayConn.WithHttpTransport(&LogRoundTripper{})
-
-	return me.apiGatewayConn
-}
-
 // UseAuditClient returns audit client for service
 func (me *TencentCloudClient) UseAuditClient() *audit.Client {
 	if me.auditConn != nil {
@@ -472,4 +459,17 @@ func (me *TencentCloudClient) UseAuditClient() *audit.Client {
 	me.auditConn.WithHttpTransport(&LogRoundTripper{})
 
 	return me.auditConn
+}
+
+// UseAPIGatewayClient returns apigateway client for service
+func (me *TencentCloudClient) UseAPIGatewayClient() *apigateway.Client {
+	if me.apiGatewayConn != nil {
+		return me.apiGatewayConn
+	}
+
+	cpf := me.NewClientProfile(300)
+	me.apiGatewayConn, _ = apigateway.NewClient(me.Credential, me.Region, cpf)
+	me.apiGatewayConn.WithHttpTransport(&LogRoundTripper{})
+
+	return me.apiGatewayConn
 }

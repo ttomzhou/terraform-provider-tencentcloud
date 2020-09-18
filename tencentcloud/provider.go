@@ -680,6 +680,7 @@ func Provider() terraform.ResourceProvider {
 			"tencentcloud_api_gateway_throttling_apis":         dataSourceTencentCloudAPIGatewayThrottlingApis(),
 			"tencentcloud_api_gateway_apis":                    dataSourceTencentCloudAPIGatewayAPIs(),
 			"tencentcloud_api_gateway_services":                dataSourceTencentCloudAPIGatewayServices(),
+			"tencentcloud_api_gateway_api_keys":                dataSourceTencentCloudAPIGatewayAPIKeys(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -811,6 +812,10 @@ func Provider() terraform.ResourceProvider {
 			"tencentcloud_api_gateway_throttling_api":        resourceTencentCloudAPIGatewayThrottlingAPI(),
 			"tencentcloud_api_gateway_throttling_service":    resourceTencentCloudAPIGatewayThrottlingService(),
 			"tencentcloud_api_gateway_custom_domain":         resourceTencentCloudAPIGatewayCustomDomain(),
+			"tencentcloud_api_gateway_ip_strategy":           resourceTencentCloudAPIGatewayIPStrategy(),
+			"tencentcloud_api_gateway_strategy_attachment":   resourceTencentCloudAPIGatewayStrategyAttachment(),
+			"tencentcloud_api_gateway_api_key":               resourceTencentCloudAPIGatewayAPIKey(),
+			"tencentcloud_api_gateway_api_key_attachment":    resourceTencentCloudAPIGatewayAPIKeyAttachment(),
 		},
 
 		ConfigureFunc: providerConfigure,

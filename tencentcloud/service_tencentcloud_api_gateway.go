@@ -1315,3 +1315,203 @@ func (me *APIGatewayService) UnBindSubDomainService(ctx context.Context,
 	}
 	return
 }
+
+func (me *APIGatewayService) CreateIPStrategy(ctx context.Context,
+	serviceId, strategyName, strategyType, strategyData string) (strategyId string, errRet error) {
+	request := apigateway.NewCreateIPStrategyRequest()
+	request.ServiceId = &serviceId
+	request.StrategyName = &strategyName
+	request.StrategyType = &strategyType
+	request.StrategyData = &strategyData
+
+	ratelimit.Check(request.GetAction())
+	response, err := me.client.UseAPIGatewayClient().CreateIPStrategy(request)
+	if err != nil {
+		errRet = err
+		return
+	}
+	if response.Response.Result == nil || response.Response.Result.StrategyId == nil {
+		errRet = fmt.Errorf("TencentCloud SDK %s return empty ", request.GetAction())
+		return
+	}
+	strategyId = *response.Response.Result.StrategyId
+	return
+}
+
+func (me *APIGatewayService) DescribeIPStrategyHas(ctx context.Context,
+	serviceId, strategyId string) (has bool, errRet error) {
+
+	request := apigateway.NewDescribeIPStrategysStatusRequest()
+	request.ServiceId = &serviceId
+
+	ratelimit.Check(request.GetAction())
+	response, err := me.client.UseAPIGatewayClient().DescribeIPStrategysStatus(request)
+	if err != nil {
+		errRet = err
+		return
+	}
+	if response.Response.Result == nil {
+		errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+		return
+	}
+	for _, status := range response.Response.Result.StrategySet {
+		if *status.StrategyId == strategyId {
+			has = true
+			return
+		}
+	}
+
+	return
+}
+
+func (me *APIGatewayService) DescribeIPStrategyStatus(ctx context.Context, serviceId,
+	strategyId string) (ipStrategies *apigateway.IPStrategy, has bool, errRet error) {
+
+	var apiList []*apigateway.DesApisStatus
+	for _, env := range API_GATEWAY_SERVICE_ENVS {
+		request := apigateway.NewDescribeIPStrategyRequest()
+
+		request.ServiceId = &serviceId
+		request.StrategyId = &strategyId
+		request.EnvironmentName = &env
+
+		var (
+			limit  int64 = 20
+			offset int64 = 0
+		)
+
+		request.Limit = &limit
+		request.Offset = &offset
+
+		for {
+			ratelimit.Check(request.GetAction())
+			response, err := me.client.UseAPIGatewayClient().DescribeIPStrategy(request)
+			if err != nil {
+				errRet = err
+				return
+			}
+			if response.Response.Result == nil {
+				errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+				return
+			}
+			if len(response.Response.Result.BindApis) > 0 {
+				apiList = append(apiList, response.Response.Result.BindApis...)
+			}
+			if len(response.Response.Result.BindApis) < int(limit) {
+				has = true
+				ipStrategies = response.Response.Result
+				ipStrategies.BindApis = apiList
+				return
+			}
+			offset += limit
+		}
+	}
+	return
+}
+
+func (me *APIGatewayService) UpdateIPStrategy(ctx context.Context, serviceId, strategyId, strategyData string) (errRet error) {
+	request := apigateway.NewModifyIPStrategyRequest()
+	request.StrategyId = &strategyId
+	request.ServiceId = &serviceId
+	request.StrategyData = &strategyData
+	ratelimit.Check(request.GetAction())
+	response, err := me.client.UseAPIGatewayClient().ModifyIPStrategy(request)
+	if err != nil {
+		errRet = err
+		return
+	}
+	if response.Response.Result == nil {
+		errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+		return
+	}
+	if *response.Response.Result {
+		return
+	}
+	return fmt.Errorf("update ip strategy fail")
+}
+
+func (me *APIGatewayService) DeleteIPStrategy(ctx context.Context, serviceId, strategyId string) (errRet error) {
+	request := apigateway.NewDeleteIPStrategyRequest()
+	request.StrategyId = &strategyId
+	request.ServiceId = &serviceId
+
+	ratelimit.Check(request.GetAction())
+	response, err := me.client.UseAPIGatewayClient().DeleteIPStrategy(request)
+	if err != nil {
+		errRet = err
+		return
+	}
+	if response.Response.Result == nil {
+		errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+		return
+	}
+	if *response.Response.Result {
+		return
+	}
+	return fmt.Errorf("delete ip strategy fail")
+}
+
+func (me *APIGatewayService) CreateStrategyAttachment(ctx context.Context,
+	serviceId, strategyId, envName, bindApiId string) (has bool, errRet error) {
+	request := apigateway.NewBindIPStrategyRequest()
+	var bindarr = []*string{&bindApiId}
+	request.ServiceId = &serviceId
+	request.StrategyId = &strategyId
+	request.EnvironmentName = &envName
+	request.BindApiIds = bindarr
+
+	ratelimit.Check(request.GetAction())
+	response, err := me.client.UseAPIGatewayClient().BindIPStrategy(request)
+	if err != nil {
+		errRet = err
+		return
+	}
+	if response.Response.Result == nil {
+		errRet = fmt.Errorf("TencentCloud SDK %s return empty ", request.GetAction())
+		return
+	}
+	has = *response.Response.Result
+	return
+}
+
+func (me *APIGatewayService) DeleteStrategyAttachment(ctx context.Context,
+	serviceId, strategyId, envName, bindApiId string) (has bool, errRet error) {
+	request := apigateway.NewUnBindIPStrategyRequest()
+	var unBindarr = []*string{&bindApiId}
+	request.ServiceId = &serviceId
+	request.StrategyId = &strategyId
+	request.EnvironmentName = &envName
+	request.UnBindApiIds = unBindarr
+
+	ratelimit.Check(request.GetAction())
+	response, err := me.client.UseAPIGatewayClient().UnBindIPStrategy(request)
+	if err != nil {
+		errRet = err
+		return
+	}
+	if response.Response.Result == nil {
+		errRet = fmt.Errorf("TencentCloud SDK %s return empty ", request.GetAction())
+		return
+	}
+	has = *response.Response.Result
+	return
+}
+
+func (me *APIGatewayService) DescribeStrategyAttachment(ctx context.Context, serviceId, strategyId, bindApiId string) (notHas bool, errRet error) {
+	ipStatus, _, err := me.DescribeIPStrategyStatus(ctx, serviceId, strategyId)
+	if err != nil {
+		errRet = err
+		return
+	}
+	if ipStatus.BindApis == nil {
+		notHas = false
+		return
+	}
+	for _, bindApi := range ipStatus.BindApis {
+		if *bindApi.ApiId == bindApiId {
+			notHas = true
+			return
+		}
+	}
+	return
+}
