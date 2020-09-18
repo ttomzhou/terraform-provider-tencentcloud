@@ -102,3 +102,11 @@ var API_GATEWAY_API_PROTOCOLS = []string{
 }
 
 var API_GATEWAY_API_RESPONSE_TYPES = []string{"HTML", "JSON", "TEXT", "BINARY", "XML", ""}
+
+const (
+	CertificateIdExpired       = "FailedOperation.CertificateIdExpired"
+	CertificateIdUnderVerify   = "FailedOperation.CertificateIdUnderVerify"
+	DomainNeedBeian            = "FailedOperation.DomainNeedBeian"
+	ExceededDefineMappingLimit = "LimitExceeded.ExceededDefineMappingLimit"
+	DomainResolveError         = "FailedOperation.DomainResolveError"
+)
