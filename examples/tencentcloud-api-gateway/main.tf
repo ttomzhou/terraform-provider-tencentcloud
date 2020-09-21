@@ -95,54 +95,111 @@ data "tencentcloud_api_gateway_apis" "name" {
   api_name   = tencentcloud_api_gateway_api.api.api_name
 }
 
-resource "tencentcloud_api_gateway_service" "service" {
-  service_name = "niceservice"
-  protocol     = "http&https"
-  service_desc = "your nice service"
-  net_type     = ["INNER", "OUTER"]
-  ip_version   = "IPv4"
-}
-
 data "tencentcloud_api_gateway_services" "name" {
-    service_name = tencentcloud_api_gateway_service.service.service_name
+  service_name = tencentcloud_api_gateway_service.service.service_name
 }
 
 data "tencentcloud_api_gateway_services" "ids" {
-    service_id = tencentcloud_api_gateway_service.service.id
+  service_id = tencentcloud_api_gateway_service.service.id
 }
 
 resource "tencentcloud_api_gateway_custom_domain" "service" {
-	service_id 			   = "service-ohxqslqe"
-	sub_domain 			   = "tic-test.dnsv1.com"
-	protocol   			   = "http"
-	net_type   			   = "OUTER"
-	is_default_mapping = "false"
-	default_domain 	 	 = "service-ohxqslqe-1259649581.gz.apigw.tencentcs.com"
-	path_mappings 		 = ["/good#test","/root#release"]
+  service_id 			 = "service-ohxqslqe"
+  sub_domain 			 = "tic-test.dnsv1.com"
+  protocol   			 = "http"
+  net_type   			 = "OUTER"
+  is_default_mapping   = "false"
+  default_domain 	 	 = "service-ohxqslqe-1259649581.gz.apigw.tencentcs.com"
+  path_mappings 		 = ["/good#test","/root#release"]
 }
 
 resource "tencentcloud_api_gateway_throttling_api" "service" {
-	service_id       = "service-4r4xrrz4"
-	strategy         = "400"
-	environment_name = "test"
-	api_ids          = ["api-lukm33yk"]
+  service_id       = "service-4r4xrrz4"
+  strategy         = "400"
+  environment_name = "test"
+  api_ids          = ["api-lukm33yk"]
 }
 
 data "tencentcloud_api_gateway_throttling_apis" "id" {
-    service_id = tencentcloud_api_gateway_throttling_api.service.service_id
+  service_id = tencentcloud_api_gateway_throttling_api.service.service_id
 }
 
 data "tencentcloud_api_gateway_throttling_apis" "foo" {
-	service_id 		    = tencentcloud_api_gateway_throttling_api.service.service_id
-	environment_names = ["release", "test"]
+  service_id 		    = tencentcloud_api_gateway_throttling_api.service.service_id
+  environment_names   = ["release", "test"]
 }
 
 resource "tencentcloud_api_gateway_throttling_service" "service" {
-	service_id        = "service-4r4xrrz4"
-	strategy          = "400"
-	environment_names = ["release"]
+  service_id        = "service-4r4xrrz4"
+  strategy          = "400"
+  environment_names = ["release"]
+}
+
+resource "tencentcloud_api_gateway_api_key" "test" {
+  secret_name = "my_api_key"
+  status      = "on"
+}
+
+data "tencentcloud_api_gateway_api_keys" "id" {
+  access_key_id = tencentcloud_api_gateway_api_key.test.access_key_id
 }
 
 data "tencentcloud_api_gateway_throttling_services" "id" {
-    service_id = tencentcloud_api_gateway_throttling_service.service.service_id
+  service_id = tencentcloud_api_gateway_throttling_service.service.service_id
+}
+
+resource "tencentcloud_api_gateway_ip_strategy" "test"{
+  service_id 	  = "service-ohxqslqe"
+  strategy_name = "tf_test"
+  strategy_type = "BLACK"
+  strategy_data = "9.9.9.9"
+}
+
+data "tencentcloud_api_gateway_ip_strategies" "id" {
+  service_id = tencentcloud_api_gateway_ip_strategy.test.service_id
+}
+
+resource "tencentcloud_api_gateway_usage_plan" "plan" {
+  usage_plan_name         = "my_plan"
+  usage_plan_desc         = "nice plan"
+  max_request_num         = 100
+  max_request_num_pre_sec = 10
+}
+
+data "tencentcloud_api_gateway_usage_plans" "id" {
+  usage_plan_id = tencentcloud_api_gateway_usage_plan.plan.id
+}
+
+resource "tencentcloud_api_gateway_usage_plan_attachment" "attach_service" {
+  usage_plan_id  = tencentcloud_api_gateway_usage_plan.plan.id
+  service_id     = tencentcloud_api_gateway_service.service.id
+  environment    = "test"
+  bind_type      = "SERVICE"
+}
+
+data "tencentcloud_api_gateway_customer_domains" "id" {
+  service_id = tencentcloud_api_gateway_custom_domain.service.service_id
+}
+
+data "tencentcloud_api_gateway_usage_plan_environments" "environment_test" {
+  usage_plan_id = tencentcloud_api_gateway_usage_plan_attachment.attach_service.usage_plan_id
+  bind_type     = "SERVICE"
+}
+
+resource "tencentcloud_api_gateway_api_key" "key" {
+  secret_name = "my_api_key"
+  status      = "on"
+}
+
+resource "tencentcloud_api_gateway_usage_plan" "plan1" {
+  usage_plan_name         = "my_plan"
+  usage_plan_desc         = "nice plan"
+  max_request_num         = 100
+  max_request_num_pre_sec = 10
+}
+
+
+resource "tencentcloud_api_gateway_api_key_attachment" "attach" {
+  api_key_id    = tencentcloud_api_gateway_api_key.key.id
+  usage_plan_id = tencentcloud_api_gateway_usage_plan.plan1.id
 }
