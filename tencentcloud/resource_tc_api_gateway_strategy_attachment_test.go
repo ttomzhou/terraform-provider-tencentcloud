@@ -91,19 +91,10 @@ func testApiStrategyAttachmentExists(n string) resource.TestCheckFunc {
 }
 
 const testApiStrategyAttachment_basic = `
-
-resource "tencentcloud_api_gateway_ip_strategy" "test"{
+resource "tencentcloud_api_gateway_strategy_attachment" "test"{
    service_id = "service-ohxqslqe"
-   strategy_name = "tf_test"
-   strategy_type = "BLACK"
-   strategy_data = "9.9.9.9"
-}
-
-resource "tencentcloud_api_gateway_strategy_attachment" "att_test"{
-   service_id = "service-ohxqslqe"
-   strategy_id = tencentcloud_api_gateway_ip_strategy.test.strategy_id
+   strategy_id = "IPStrategy-nbxqk56k"
    environment_name = "release"
    bind_api_id = "api-jbtpu758"
-}
 }
 `
