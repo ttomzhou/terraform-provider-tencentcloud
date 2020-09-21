@@ -126,12 +126,14 @@ func resourceTencentCloudAPIGatewayAPIKeyCreate(data *schema.ResourceData, meta 
 
 	//set status to disable
 	if statusStr == API_GATEWAY_KEY_DISABLED {
-		outErr = resource.Retry(writeRetryTimeout, func() *resource.RetryError {
+		if outErr = resource.Retry(writeRetryTimeout, func() *resource.RetryError {
 			if inErr = apiGatewayService.DisableApiKey(ctx, accessKeyId); inErr != nil {
 				return retryError(inErr, InternalError)
 			}
 			return nil
-		})
+		}); outErr != nil {
+			return outErr
+		}
 	}
 	return resourceTencentCloudAPIGatewayAPIKeyRead(data, meta)
 

@@ -259,7 +259,7 @@ func resourceTencentCloudAPIGatewayAPIKeyAttachmentDelete(data *schema.ResourceD
 		for _, v := range info.BindSecretIds {
 			if *v == apiKeyId {
 				return resource.RetryableError(
-					fmt.Errorf("api key  %s attach to usage plan %s still is deleteing",
+					fmt.Errorf("api key  %s attach to usage plan %s still is deleting.",
 						apiKeyId, usagePlanId))
 			}
 		}
