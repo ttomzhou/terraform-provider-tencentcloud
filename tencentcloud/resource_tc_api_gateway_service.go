@@ -96,6 +96,11 @@ func resourceTencentCloudAPIGatewayService() *schema.Resource {
 			},
 
 			// Computed values.
+			"service_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Service ID for query.",
+			},
 			"internal_sub_domain": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -354,6 +359,7 @@ func resourceTencentCloudAPIGatewayServiceRead(data *schema.ResourceData, meta i
 	}
 
 	errs := []error{
+		data.Set("service_id", serviceId),
 		data.Set("service_name", info.Response.ServiceName),
 		data.Set("protocol", info.Response.Protocol),
 		data.Set("service_desc", info.Response.ServiceDesc),

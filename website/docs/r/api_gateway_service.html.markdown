@@ -53,6 +53,7 @@ In addition to all arguments above, the following attributes are exported:
 * `internal_sub_domain` - Private network access subdomain name.
 * `modify_time` - Last modified time in the format of YYYY-MM-DDThh:mm:ssZ according to ISO 8601 standard. UTC time is used.
 * `outer_sub_domain` - Public network access subdomain name.
+* `service_id` - Service ID for query.
 * `usage_plan_list` - A list of attach usage plans. Each element contains the following attributes:
   * `api_id` - ID of the api.
   * `bind_type` - Binding type.
