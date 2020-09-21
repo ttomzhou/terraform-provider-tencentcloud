@@ -164,7 +164,7 @@ func resourceTencentCloudAPIGatewayCustomDomainRead(data *schema.ResourceData, m
 	info, err := apiGatewayService.DescribeServiceSubDomainMappings(ctx, serviceId, *resultInfo.DomainName)
 	if err != nil {
 		data.SetId("")
-		return fmt.Errorf("DescribeServiceSubDomainMappings err: %w", err)
+		return fmt.Errorf("DescribeServiceSubDomainMappings err: %s", err.Error())
 	}
 	pathMap := make([]string, 0, len(info.PathMappingSet))
 	for i := range info.PathMappingSet {
