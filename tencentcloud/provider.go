@@ -54,16 +54,8 @@ Anti-DDoS(Dayu)
     tencentcloud_dayu_ddos_policy_case
     tencentcloud_dayu_l4_rule
     tencentcloud_dayu_l7_rule
-API GateWay
-  Resource
-  	tencentcloud_api_gateway_api
-	tencentcloud_api_gateway_service
-	tencentcloud_api_gateway_throttling_api
-	tencentcloud_api_gateway_throttling_service
-	tencentcloud_api_gateway_custom_domain
-	tencentcloud_api_gateway_usage_plan
-	tencentcloud_api_gateway_usage_plan_attachment
 
+API GateWay
   Data Source
 	tencentcloud_api_gateway_apis
 	tencentcloud_api_gateway_services
@@ -73,6 +65,20 @@ API GateWay
 	tencentcloud_api_gateway_ip_strategies
 	tencentcloud_api_gateway_customer_domains
 	tencentcloud_api_gateway_usage_plan_environments
+	tencentcloud_api_gateway_api_keys
+
+  Resource
+  	tencentcloud_api_gateway_api
+	tencentcloud_api_gateway_service
+	tencentcloud_api_gateway_throttling_api
+	tencentcloud_api_gateway_throttling_service
+	tencentcloud_api_gateway_custom_domain
+	tencentcloud_api_gateway_usage_plan
+	tencentcloud_api_gateway_usage_plan_attachment
+	tencentcloud_api_gateway_ip_strategy
+	tencentcloud_api_gateway_strategy_attachment
+	tencentcloud_api_gateway_api_key
+	tencentcloud_api_gateway_api_key_attachment
 
 Audit
   Data Source

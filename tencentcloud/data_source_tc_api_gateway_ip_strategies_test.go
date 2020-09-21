@@ -6,18 +6,21 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
-var testAPIGatewayIpStrategySourceName = "data.tencentcloud_api_gateway_ip_strategies"
+var (
+	testAPIGatewayIpStrategySourceName = "data.tencentcloud_api_gateway_ip_strategies"
+	testAPIGatewayIpStrategy           = "tencentcloud_api_gateway_ip_strategy.test"
+)
 
-// @TODO 添加检查IP策略是否存在，删除服务IP策略
 func TestAccTencentAPIGatewayIpStrategyDataSource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		//CheckDestroy: testAccCheckAPIGate,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testApiIPStrategyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccTestAccTencentAPIGatewayIpStrategy(),
 				Check: resource.ComposeAggregateTestCheckFunc(
+					testApiIPStrategyExists(testAPIGatewayIpStrategy),
 					resource.TestCheckResourceAttrSet(testAPIGatewayIpStrategySourceName+".id", "list.#"),
 					resource.TestCheckResourceAttrSet(testAPIGatewayIpStrategySourceName+".id", "list.0.strategy_id"),
 					resource.TestCheckResourceAttrSet(testAPIGatewayIpStrategySourceName+".id", "list.0.strategy_name"),
@@ -39,13 +42,20 @@ func TestAccTencentAPIGatewayIpStrategyDataSource(t *testing.T) {
 
 func testAccTestAccTencentAPIGatewayIpStrategy() string {
 	return `
+		resource "tencentcloud_api_gateway_ip_strategy" "test"{
+    		service_id 	  = "service-ohxqslqe"
+    		strategy_name = "tf_test"
+    		strategy_type = "BLACK"
+    		strategy_data = "9.9.9.9"
+		}
+
 		data "tencentcloud_api_gateway_ip_strategies" "id" {
-  			service_id = "service-ohxqslqe" 
+  			service_id = tencentcloud_api_gateway_ip_strategy.test.service_id 
 		}
 		
 		data "tencentcloud_api_gateway_ip_strategies" "name" {
-			service_id 	  = "service-ohxqslqe"
-  			strategy_name = "test2"
+			service_id 	  = tencentcloud_api_gateway_ip_strategy.test.service_id
+  			strategy_name = tencentcloud_api_gateway_ip_strategy.test.strategy_name
 		}
 	`
 }

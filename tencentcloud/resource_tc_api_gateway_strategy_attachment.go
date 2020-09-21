@@ -5,10 +5,10 @@ Example Usage
 
 ```hcl
 resource "tencentcloud_api_gateway_strategy_attachment" "test"{
-   service_id = "service-ohxqslqe"
-   strategy_id = tencentcloud_api_gateway_ip_strategy.test.strategy_id
+   service_id       = "service-ohxqslqe"
+   strategy_id      = tencentcloud_api_gateway_ip_strategy.test.strategy_id
    environment_name = "release"
-   bind_api_id = "api-jbtpu758"
+   bind_api_id      = "api-jbtpu758"
 }
 ```
 
@@ -19,9 +19,7 @@ api gateway ip strategy attachment can be imported using the id, e.g.
 ```
 $ terraform import tencentcloud_api_gateway_strategy_attachment.test service-ohxqslqe#IPStrategy-nbxqk56k#api-jbtpu758#release
 ```
-
 */
-
 package tencentcloud
 
 import (
@@ -48,7 +46,7 @@ func resourceTencentCloudAPIGatewayStrategyAttachment() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateNotEmpty,
-				Description:  "The id of the API gateway service",
+				Description:  "The id of the API gateway service.",
 			},
 
 			"strategy_id": {
@@ -56,21 +54,21 @@ func resourceTencentCloudAPIGatewayStrategyAttachment() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateNotEmpty,
-				Description:  "The id of the API gateway strategy",
+				Description:  "The id of the API gateway strategy.",
 			},
 			"environment_name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateNotEmpty,
-				Description:  "The environment of the strategy association",
+				Description:  "The environment of the strategy association.",
 			},
 			"bind_api_id": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateNotEmpty,
-				Description:  "The API that needs to be bound",
+				Description:  "The API that needs to be bound.",
 			},
 		},
 	}
@@ -122,7 +120,7 @@ func resourceTencentCloudAPIGatewayStrategyAttachmentCreate(d *schema.ResourceDa
 }
 
 func resourceTencentCloudAPIGatewayStrategyAttachmentRead(d *schema.ResourceData, meta interface{}) error {
-	defer logElapsed("resource.tencentcloud_api_gateway_ip_strategy.create")()
+	defer logElapsed("resource.tencentcloud_api_gateway_strategy_attachment.read")()
 	defer inconsistentCheck(d, meta)()
 
 	var (
@@ -177,6 +175,8 @@ func resourceTencentCloudAPIGatewayStrategyAttachmentRead(d *schema.ResourceData
 }
 
 func resourceTencentCloudAPIGatewayStrategyAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
+	defer logElapsed("resource.tencentcloud_api_gateway_strategy_attachment.delete")()
+
 	var (
 		logId             = getLogId(contextNil)
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)

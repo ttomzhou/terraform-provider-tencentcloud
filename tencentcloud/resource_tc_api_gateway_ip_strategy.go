@@ -1,11 +1,11 @@
 /*
-Use this resource to create api gateway ip strategy .
+Use this resource to create api gateway ip strategy.
 
 Example Usage
 
 ```hcl
 resource "tencentcloud_api_gateway_ip_strategy" "test"{
-    service_id = "service-ohxqslqe"
+    service_id    = "service-ohxqslqe"
     strategy_name = "tf_test"
     strategy_type = "BLACK"
     strategy_data = "9.9.9.9"
@@ -17,11 +17,9 @@ Import
 api gateway ip strategy can be imported using the id, e.g.
 
 ```
-$ terraform import tencentcloud_api_gateway_strategy_attachment.test service-ohxqslqe#IPStrategy-q1lk8ud2
+$ terraform import tencentcloud_api_gateway_ip_strategy.test service-ohxqslqe#IPStrategy-q1lk8ud2
 ```
-
 */
-
 package tencentcloud
 
 import (
@@ -50,7 +48,7 @@ func resourceTencentCloudAPIGatewayIPStrategy() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateNotEmpty,
-				Description:  "The id of the API gateway service",
+				Description:  "The id of the API gateway service.",
 			},
 
 			"strategy_name": {
@@ -58,20 +56,20 @@ func resourceTencentCloudAPIGatewayIPStrategy() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateNotEmpty,
-				Description:  "User  defined strategy name",
+				Description:  "User  defined strategy name.",
 			},
 			"strategy_type": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateNotEmpty,
-				Description:  "Blacklist or whitelist",
+				Description:  "Blacklist or whitelist.",
 			},
 			"strategy_data": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateNotEmpty,
-				Description:  "IP address data",
+				Description:  "IP address data.",
 			},
 
 			// Computed values.
@@ -83,7 +81,7 @@ func resourceTencentCloudAPIGatewayIPStrategy() *schema.Resource {
 			"strategy_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "",
+				Description: "IP policy id.",
 			},
 		},
 	}
@@ -136,7 +134,7 @@ func resourceTencentCloudAPIGatewayIPStrategyCreate(d *schema.ResourceData, meta
 }
 
 func resourceTencentCloudAPIGatewayIPStrategyRead(d *schema.ResourceData, meta interface{}) error {
-	defer logElapsed("resource.tencentcloud_api_gateway_ip_strategy.create")()
+	defer logElapsed("resource.tencentcloud_api_gateway_ip_strategy.read")()
 	defer inconsistentCheck(d, meta)()
 
 	var (
@@ -190,7 +188,7 @@ func resourceTencentCloudAPIGatewayIPStrategyRead(d *schema.ResourceData, meta i
 }
 
 func resourceTencentCloudAPIGatewayIPStrategyUpdate(d *schema.ResourceData, meta interface{}) error {
-	defer logElapsed("resource.tencentcloud_api_gateway_api_key.update")()
+	defer logElapsed("resource.tencentcloud_api_gateway_ip_strategy.update")()
 
 	var (
 		logId             = getLogId(contextNil)
@@ -229,6 +227,8 @@ func resourceTencentCloudAPIGatewayIPStrategyUpdate(d *schema.ResourceData, meta
 }
 
 func resourceTencentCloudAPIGatewayIPStrategyDelete(d *schema.ResourceData, meta interface{}) error {
+	defer logElapsed("resource.tencentcloud_api_gateway_ip_strategy.delete")()
+
 	var (
 		logId             = getLogId(contextNil)
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
