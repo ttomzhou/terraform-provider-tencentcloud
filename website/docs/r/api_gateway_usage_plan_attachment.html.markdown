@@ -44,7 +44,7 @@ The following arguments are supported:
 * `environment` - (Required, ForceNew) Environment to be bound `test`,`prepub` or `release`.
 * `service_id` - (Required, ForceNew) ID of the service.
 * `usage_plan_id` - (Required, ForceNew) ID of the usage plan.
-* `api_id` - (Optional, ForceNew) API id. This parameter will be required when `bind_type` is `API`.
+* `api_id` - (Optional, ForceNew) ID of the api. This parameter will be required when `bind_type` is `API`.
 * `bind_type` - (Optional, ForceNew) Binding type. Valid values: `API`, `SERVICE` (default value).
 
 ## Attributes Reference

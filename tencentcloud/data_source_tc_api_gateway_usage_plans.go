@@ -24,8 +24,8 @@ package tencentcloud
 
 import (
 	"context"
-	"encoding/json"
 	"log"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -156,7 +156,7 @@ func dataSourceTencentCloudAPIGatewayUsagePlans() *schema.Resource {
 	}
 }
 
-func dataSourceTencentCloudAPIGatewayUsagePlansRead(data *schema.ResourceData, meta interface{}) error {
+func dataSourceTencentCloudAPIGatewayUsagePlansRead(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("data_source.tencentcloud_api_gateway_usage_plans.read")
 
 	var (
@@ -164,8 +164,8 @@ func dataSourceTencentCloudAPIGatewayUsagePlansRead(data *schema.ResourceData, m
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
 
-		usagePlanId   = data.Get("usage_plan_id").(string)
-		usagePlanName = data.Get("usage_plan_name").(string)
+		usagePlanId   = d.Get("usage_plan_id").(string)
+		usagePlanName = d.Get("usage_plan_name").(string)
 		infos         []*apigateway.UsagePlanStatusInfo
 		list          []map[string]interface{}
 
@@ -225,21 +225,13 @@ func dataSourceTencentCloudAPIGatewayUsagePlansRead(data *schema.ResourceData, m
 		list = append(list, infoMap)
 	}
 
-	byteId, err := json.Marshal(map[string]interface{}{
-		"usage_plan_id":   usagePlanId,
-		"usage_plan_name": usagePlanName,
-	})
-	if err != nil {
-		return err
-	}
-
-	if err = data.Set("list", list); err != nil {
+	if err = d.Set("list", list); err != nil {
 		log.Printf("[CRITAL]%s provider set list fail, reason:%s", logId, err.Error())
 	}
 
-	data.SetId(string(byteId))
+	d.SetId(strings.Join([]string{usagePlanId, usagePlanName}, FILED_SP))
 
-	if output, ok := data.GetOk("result_output_file"); ok && output.(string) != "" {
+	if output, ok := d.GetOk("result_output_file"); ok && output.(string) != "" {
 		return writeToFile(output.(string), list)
 	}
 	return nil

@@ -88,13 +88,13 @@ func resourceTencentCloudAPIGatewayUsagePlanAttachment() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "API id. This parameter will be required when `bind_type` is `API`.",
+				Description: "ID of the api. This parameter will be required when `bind_type` is `API`.",
 			},
 		},
 	}
 }
 
-func resourceTencentCloudAPIGatewayUsagePlanAttachmentCreate(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayUsagePlanAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("resource.tencentcloud_api_gateway_usage_plan_attachment.create")()
 
 	var (
@@ -102,16 +102,16 @@ func resourceTencentCloudAPIGatewayUsagePlanAttachmentCreate(data *schema.Resour
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
 
-		usagePlanId = data.Get("usage_plan_id").(string)
-		serviceId   = data.Get("service_id").(string)
-		environment = data.Get("environment").(string)
-		bindType    = data.Get("bind_type").(string)
+		usagePlanId = d.Get("usage_plan_id").(string)
+		serviceId   = d.Get("service_id").(string)
+		environment = d.Get("environment").(string)
+		bindType    = d.Get("bind_type").(string)
 
 		apiId string
 		err   error
 	)
 
-	if v, ok := data.GetOk("api_id"); ok {
+	if v, ok := d.GetOk("api_id"); ok {
 		apiId = v.(string)
 	}
 
@@ -120,13 +120,13 @@ func resourceTencentCloudAPIGatewayUsagePlanAttachmentCreate(data *schema.Resour
 	}
 
 	//check usage plan
-	exist, err := checkUsagePlan(ctx, data, apiGatewayService, usagePlanId, false)
+	exist, err := checkUsagePlan(ctx, d, apiGatewayService, usagePlanId, false)
 	if exist && err != nil {
 		return err
 	}
 
 	//check service
-	exist, err = checkService(ctx, data, apiGatewayService, serviceId, false)
+	exist, err = checkService(ctx, d, apiGatewayService, serviceId, false)
 	if exist && err != nil {
 		return err
 	}
@@ -146,14 +146,14 @@ func resourceTencentCloudAPIGatewayUsagePlanAttachmentCreate(data *schema.Resour
 		return fmt.Errorf("build id json fail,%s", err.Error())
 	}
 
-	data.SetId(string(idMap))
+	d.SetId(string(idMap))
 
-	return resourceTencentCloudAPIGatewayUsagePlanAttachmentRead(data, meta)
+	return resourceTencentCloudAPIGatewayUsagePlanAttachmentRead(d, meta)
 }
 
-func resourceTencentCloudAPIGatewayUsagePlanAttachmentRead(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayUsagePlanAttachmentRead(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("resource.tencentcloud_api_gateway_usage_plan_attachment.read")()
-	defer inconsistentCheck(data, meta)()
+	defer inconsistentCheck(d, meta)()
 
 	var (
 		logId             = getLogId(contextNil)
@@ -163,7 +163,7 @@ func resourceTencentCloudAPIGatewayUsagePlanAttachmentRead(data *schema.Resource
 		idMap = make(map[string]interface{})
 		err   error
 	)
-	if err = json.Unmarshal([]byte(data.Id()), &idMap); err != nil {
+	if err = json.Unmarshal([]byte(d.Id()), &idMap); err != nil {
 		return fmt.Errorf("id is broken,%s", err.Error())
 	}
 
@@ -183,13 +183,13 @@ func resourceTencentCloudAPIGatewayUsagePlanAttachmentRead(data *schema.Resource
 	}
 
 	// check usage plan
-	exist, err := checkUsagePlan(ctx, data, apiGatewayService, usagePlanId, true)
+	exist, err := checkUsagePlan(ctx, d, apiGatewayService, usagePlanId, true)
 	if (exist && err != nil) || (!exist && err == nil) {
 		return err
 	}
 
 	//check service
-	exist, err = checkService(ctx, data, apiGatewayService, serviceId, true)
+	exist, err = checkService(ctx, d, apiGatewayService, serviceId, true)
 	if (exist && err != nil) || (!exist && err == nil) {
 		return err
 	}
@@ -219,11 +219,11 @@ func resourceTencentCloudAPIGatewayUsagePlanAttachmentRead(data *schema.Resource
 
 	var setData = func() error {
 		for _, err := range []error{
-			data.Set("usage_plan_id", usagePlanId),
-			data.Set("service_id", serviceId),
-			data.Set("environment", environment),
-			data.Set("bind_type", bindType),
-			data.Set("api_id", apiId),
+			d.Set("usage_plan_id", usagePlanId),
+			d.Set("service_id", serviceId),
+			d.Set("environment", environment),
+			d.Set("bind_type", bindType),
+			d.Set("api_id", apiId),
 		} {
 			if err != nil {
 				return err
@@ -244,11 +244,11 @@ func resourceTencentCloudAPIGatewayUsagePlanAttachmentRead(data *schema.Resource
 		}
 	}
 
-	data.SetId("")
+	d.SetId("")
 	return nil
 }
 
-func resourceTencentCloudAPIGatewayUsagePlanAttachmentDelete(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayUsagePlanAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("resource.tencentcloud_api_gateway_usage_plan_attachment.delete")()
 
 	var (
@@ -260,7 +260,7 @@ func resourceTencentCloudAPIGatewayUsagePlanAttachmentDelete(data *schema.Resour
 		err   error
 	)
 
-	if err = json.Unmarshal([]byte(data.Id()), &idMap); err != nil {
+	if err = json.Unmarshal([]byte(d.Id()), &idMap); err != nil {
 		return fmt.Errorf("id is broken,%s", err.Error())
 	}
 
@@ -287,7 +287,7 @@ func resourceTencentCloudAPIGatewayUsagePlanAttachmentDelete(data *schema.Resour
 	return nil
 }
 
-func checkUsagePlan(ctx context.Context, data *schema.ResourceData, api APIGatewayService, usagePlanId string, isSetId bool) (bool, error) {
+func checkUsagePlan(ctx context.Context, d *schema.ResourceData, api APIGatewayService, usagePlanId string, isSetId bool) (bool, error) {
 	var (
 		err error
 		has bool
@@ -304,7 +304,7 @@ func checkUsagePlan(ctx context.Context, data *schema.ResourceData, api APIGatew
 
 	if !has {
 		if isSetId {
-			data.SetId("")
+			d.SetId("")
 			return false, nil
 		} else {
 			return true, fmt.Errorf("usage plan %s not exist", usagePlanId)
@@ -314,7 +314,7 @@ func checkUsagePlan(ctx context.Context, data *schema.ResourceData, api APIGatew
 	return true, nil
 }
 
-func checkService(ctx context.Context, data *schema.ResourceData, api APIGatewayService, serviceId string, isSetId bool) (bool, error) {
+func checkService(ctx context.Context, d *schema.ResourceData, api APIGatewayService, serviceId string, isSetId bool) (bool, error) {
 	var (
 		err error
 		has bool
@@ -331,7 +331,7 @@ func checkService(ctx context.Context, data *schema.ResourceData, api APIGateway
 
 	if !has {
 		if isSetId {
-			data.SetId("")
+			d.SetId("")
 			return false, nil
 		} else {
 			return true, fmt.Errorf("service %s not exist", serviceId)
