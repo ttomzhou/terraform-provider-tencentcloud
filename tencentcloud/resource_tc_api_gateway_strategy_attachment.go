@@ -46,7 +46,7 @@ func resourceTencentCloudAPIGatewayStrategyAttachment() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateNotEmpty,
-				Description:  "The id of the API gateway service.",
+				Description:  "The ID of the API gateway service.",
 			},
 
 			"strategy_id": {
@@ -54,7 +54,7 @@ func resourceTencentCloudAPIGatewayStrategyAttachment() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateNotEmpty,
-				Description:  "The id of the API gateway strategy.",
+				Description:  "The ID of the API gateway strategy.",
 			},
 			"environment_name": {
 				Type:         schema.TypeString,
@@ -101,7 +101,7 @@ func resourceTencentCloudAPIGatewayStrategyAttachmentCreate(d *schema.ResourceDa
 		return outErr
 	}
 
-	d.SetId(serviceId + "#" + strategyId + "#" + bindApiId + "#" + envName)
+	d.SetId(serviceId + FILED_SP + strategyId + FILED_SP + bindApiId + FILED_SP + envName)
 	//wait ip strategy create ok
 	if outErr := resource.Retry(readRetryTimeout, func() *resource.RetryError {
 		nothas, inErr := apiGatewayService.DescribeStrategyAttachment(ctx, serviceId, strategyId, bindApiId)
@@ -111,7 +111,7 @@ func resourceTencentCloudAPIGatewayStrategyAttachmentCreate(d *schema.ResourceDa
 		if !nothas {
 			return nil
 		}
-		return resource.RetryableError(fmt.Errorf("IP strategy attachment %s not found on server", strategyId+"#"+bindApiId))
+		return resource.RetryableError(fmt.Errorf("IP strategy attachment %s not found on server", strategyId+FILED_SP+bindApiId))
 
 	}); outErr != nil {
 		return outErr
@@ -135,8 +135,7 @@ func resourceTencentCloudAPIGatewayStrategyAttachmentRead(d *schema.ResourceData
 
 	idSplit := strings.Split(attachmentId, FILED_SP)
 	if len(idSplit) < 3 {
-		d.SetId("")
-		return nil
+		return fmt.Errorf("ip strategy attachment is not create")
 	}
 	serviceId := idSplit[0]
 	strategyId := idSplit[1]

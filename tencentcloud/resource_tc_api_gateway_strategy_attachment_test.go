@@ -91,9 +91,13 @@ func testApiStrategyAttachmentExists(n string) resource.TestCheckFunc {
 }
 
 const testApiStrategyAttachment_basic = `
+data "tencentcloud_api_gateway_ip_strategies" "id" {
+	service_id = "service-ohxqslqe"
+}
+
 resource "tencentcloud_api_gateway_strategy_attachment" "test"{
    service_id = "service-ohxqslqe"
-   strategy_id = "IPStrategy-nbxqk56k"
+   strategy_id = data.tencentcloud_api_gateway_ip_strategies.id.list[0].strategy_id
    environment_name = "release"
    bind_api_id = "api-jbtpu758"
 }
