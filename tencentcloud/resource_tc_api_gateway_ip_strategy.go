@@ -56,7 +56,7 @@ func resourceTencentCloudAPIGatewayIPStrategy() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateNotEmpty,
-				Description:  "User  defined strategy name.",
+				Description:  "User defined strategy name.",
 			},
 			"strategy_type": {
 				Type:         schema.TypeString,
@@ -113,7 +113,7 @@ func resourceTencentCloudAPIGatewayIPStrategyCreate(d *schema.ResourceData, meta
 		return outErr
 	}
 
-	d.SetId(serviceId + "#" + strategyId)
+	d.SetId(serviceId + FILED_SP + strategyId)
 
 	//wait ip strategy create ok
 	if outErr := resource.Retry(readRetryTimeout, func() *resource.RetryError {
@@ -199,8 +199,7 @@ func resourceTencentCloudAPIGatewayIPStrategyUpdate(d *schema.ResourceData, meta
 
 	idSplit := strings.Split(serIp, FILED_SP)
 	if len(idSplit) < 2 {
-		d.SetId("")
-		return nil
+		return fmt.Errorf("ip strategy is not create,can't update")
 	}
 	serviceId := idSplit[0]
 	strategyId := idSplit[1]
@@ -223,7 +222,7 @@ func resourceTencentCloudAPIGatewayIPStrategyUpdate(d *schema.ResourceData, meta
 		}
 	}
 
-	return resourceTencentCloudAPIGatewayAPIKeyRead(d, meta)
+	return resourceTencentCloudAPIGatewayIPStrategyRead(d, meta)
 }
 
 func resourceTencentCloudAPIGatewayIPStrategyDelete(d *schema.ResourceData, meta interface{}) error {

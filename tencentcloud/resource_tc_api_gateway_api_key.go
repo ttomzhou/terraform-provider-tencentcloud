@@ -80,7 +80,7 @@ func resourceTencentCloudAPIGatewayAPIKey() *schema.Resource {
 	}
 }
 
-func resourceTencentCloudAPIGatewayAPIKeyCreate(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayAPIKeyCreate(d *schema.ResourceData, meta interface{}) error {
 
 	defer logElapsed("resource.tencentcloud_api_gateway_api_key.create")()
 
@@ -89,8 +89,8 @@ func resourceTencentCloudAPIGatewayAPIKeyCreate(data *schema.ResourceData, meta 
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
 
-		secretName = data.Get("secret_name").(string)
-		statusStr  = data.Get("status").(string)
+		secretName = d.Get("secret_name").(string)
+		statusStr  = d.Get("status").(string)
 
 		accessKeyId   string
 		inErr, outErr error
@@ -107,7 +107,7 @@ func resourceTencentCloudAPIGatewayAPIKeyCreate(data *schema.ResourceData, meta 
 		return outErr
 	}
 
-	data.SetId(accessKeyId)
+	d.SetId(accessKeyId)
 
 	//wait api key create ok
 	if outErr := resource.Retry(readRetryTimeout, func() *resource.RetryError {
@@ -135,19 +135,19 @@ func resourceTencentCloudAPIGatewayAPIKeyCreate(data *schema.ResourceData, meta 
 			return outErr
 		}
 	}
-	return resourceTencentCloudAPIGatewayAPIKeyRead(data, meta)
+	return resourceTencentCloudAPIGatewayAPIKeyRead(d, meta)
 
 }
-func resourceTencentCloudAPIGatewayAPIKeyRead(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayAPIKeyRead(d *schema.ResourceData, meta interface{}) error {
 
 	defer logElapsed("resource.tencentcloud_api_gateway_api_key.create")()
-	defer inconsistentCheck(data, meta)()
+	defer inconsistentCheck(d, meta)()
 	var (
 		logId             = getLogId(contextNil)
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
 
-		accessKeyId = data.Id()
+		accessKeyId = d.Id()
 
 		inErr  error
 		apiKey *apigateway.ApiKey
@@ -165,17 +165,17 @@ func resourceTencentCloudAPIGatewayAPIKeyRead(data *schema.ResourceData, meta in
 	}
 
 	if !has {
-		data.SetId("")
+		d.SetId("")
 		return nil
 	}
 
 	errs := []error{
-		data.Set("secret_name", apiKey.SecretName),
-		data.Set("status", API_GATEWAY_KEY_INT2STRS[*apiKey.Status]),
-		data.Set("access_key_id", apiKey.AccessKeyId),
-		data.Set("access_key_secret", apiKey.AccessKeySecret),
-		data.Set("modify_time", apiKey.ModifiedTime),
-		data.Set("create_time", apiKey.CreatedTime),
+		d.Set("secret_name", apiKey.SecretName),
+		d.Set("status", API_GATEWAY_KEY_INT2STRS[*apiKey.Status]),
+		d.Set("access_key_id", apiKey.AccessKeyId),
+		d.Set("access_key_secret", apiKey.AccessKeySecret),
+		d.Set("modify_time", apiKey.ModifiedTime),
+		d.Set("create_time", apiKey.CreatedTime),
 	}
 
 	for _, err := range errs {
@@ -185,7 +185,7 @@ func resourceTencentCloudAPIGatewayAPIKeyRead(data *schema.ResourceData, meta in
 	}
 	return nil
 }
-func resourceTencentCloudAPIGatewayAPIKeyUpdate(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayAPIKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	defer logElapsed("resource.tencentcloud_api_gateway_api_key.update")()
 
@@ -193,12 +193,12 @@ func resourceTencentCloudAPIGatewayAPIKeyUpdate(data *schema.ResourceData, meta 
 		logId             = getLogId(contextNil)
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
-		accessKeyId       = data.Id()
+		accessKeyId       = d.Id()
 	)
 
-	if data.HasChange("status") {
+	if d.HasChange("status") {
 		var (
-			statusStr = data.Get("status").(string)
+			statusStr = d.Get("status").(string)
 			inErr     error
 		)
 
@@ -217,20 +217,20 @@ func resourceTencentCloudAPIGatewayAPIKeyUpdate(data *schema.ResourceData, meta 
 		}
 	}
 
-	return resourceTencentCloudAPIGatewayAPIKeyRead(data, meta)
+	return resourceTencentCloudAPIGatewayAPIKeyRead(d, meta)
 }
-func resourceTencentCloudAPIGatewayAPIKeyDelete(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayAPIKeyDelete(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("resource.tencentcloud_api_gateway_api_key.delete")()
 
 	var (
 		logId             = getLogId(contextNil)
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
-		accessKeyId       = data.Id()
+		accessKeyId       = d.Id()
 	)
 
 	//set status to disable before delete
-	if data.Get("status") != API_GATEWAY_KEY_DISABLED {
+	if d.Get("status") != API_GATEWAY_KEY_DISABLED {
 		if outErr := resource.Retry(writeRetryTimeout, func() *resource.RetryError {
 			if inErr := apiGatewayService.DisableApiKey(ctx, accessKeyId); inErr != nil {
 				return retryError(inErr, InternalError)
