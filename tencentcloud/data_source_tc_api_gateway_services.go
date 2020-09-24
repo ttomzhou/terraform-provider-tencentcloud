@@ -25,7 +25,6 @@ package tencentcloud
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -210,14 +209,14 @@ func dataSourceTencentCloudAPIGatewayServicesRead(data *schema.ResourceData, met
 		serviceId   = data.Get("service_id").(string)
 		services    []*apigateway.Service
 
-		has           bool
-		inErr, outErr error
+		has bool
+		err error
 	)
 
-	if outErr := resource.Retry(writeRetryTimeout, func() *resource.RetryError {
-		services, inErr = apiGatewayService.DescribeServicesStatus(ctx, serviceId, serviceName)
-		if inErr != nil {
-			return retryError(inErr, InternalError)
+	if outErr := resource.Retry(readRetryTimeout, func() *resource.RetryError {
+		services, err = apiGatewayService.DescribeServicesStatus(ctx, serviceId, serviceName)
+		if err != nil {
+			return retryError(err, InternalError)
 		}
 		return nil
 	}); outErr != nil {
@@ -230,14 +229,14 @@ func dataSourceTencentCloudAPIGatewayServicesRead(data *schema.ResourceData, met
 
 		var info apigateway.DescribeServiceResponse
 
-		if outErr = resource.Retry(readRetryTimeout, func() *resource.RetryError {
-			info, has, inErr = apiGatewayService.DescribeService(ctx, *service.ServiceId)
-			if inErr != nil {
-				return retryError(inErr, InternalError)
+		if err = resource.Retry(readRetryTimeout, func() *resource.RetryError {
+			info, has, err = apiGatewayService.DescribeService(ctx, *service.ServiceId)
+			if err != nil {
+				return retryError(err, InternalError)
 			}
 			return nil
-		}); outErr != nil {
-			return outErr
+		}); err != nil {
+			return err
 		}
 		if !has {
 			continue
@@ -259,17 +258,17 @@ func dataSourceTencentCloudAPIGatewayServicesRead(data *schema.ResourceData, met
 		var plans []*apigateway.ApiUsagePlan
 
 		var planList = make([]map[string]interface{}, 0, len(info.Response.ApiIdStatusSet))
-		var hasContains = make(map[string]bool)
+		var hasContains = make(map[string]bool, len(info.Response.ApiIdStatusSet))
 
 		//from service
-		if outErr = resource.Retry(readRetryTimeout, func() *resource.RetryError {
-			plans, inErr = apiGatewayService.DescribeServiceUsagePlan(ctx, *service.ServiceId)
-			if inErr != nil {
-				return retryError(inErr, InternalError)
+		if err = resource.Retry(readRetryTimeout, func() *resource.RetryError {
+			plans, err = apiGatewayService.DescribeServiceUsagePlan(ctx, *service.ServiceId)
+			if err != nil {
+				return retryError(err, InternalError)
 			}
 			return nil
-		}); outErr != nil {
-			return outErr
+		}); err != nil {
+			return err
 		}
 
 		for _, item := range plans {
@@ -287,14 +286,14 @@ func dataSourceTencentCloudAPIGatewayServicesRead(data *schema.ResourceData, met
 		}
 
 		//from api
-		if outErr = resource.Retry(readRetryTimeout, func() *resource.RetryError {
-			plans, inErr = apiGatewayService.DescribeApiUsagePlan(ctx, *service.ServiceId)
-			if inErr != nil {
-				return retryError(inErr, InternalError)
+		if err = resource.Retry(readRetryTimeout, func() *resource.RetryError {
+			plans, err = apiGatewayService.DescribeApiUsagePlan(ctx, *service.ServiceId)
+			if err != nil {
+				return retryError(err, InternalError)
 			}
 			return nil
-		}); outErr != nil {
-			return outErr
+		}); err != nil {
+			return err
 		}
 		for _, item := range plans {
 			planList = append(
@@ -325,19 +324,13 @@ func dataSourceTencentCloudAPIGatewayServicesRead(data *schema.ResourceData, met
 		})
 	}
 
-	byteId, err := json.Marshal(map[string]interface{}{
-		"service_name": serviceName,
-		"service_id":   serviceId,
-	})
-	if err != nil {
-		return err
-	}
+	byteId := serviceName + FILED_SP + serviceId
 
 	if err = data.Set("list", list); err != nil {
 		log.Printf("[CRITAL]%s provider set list fail, reason:%s\n ", logId, err.Error())
 	}
 
-	data.SetId(string(byteId))
+	data.SetId(byteId)
 
 	if output, ok := data.GetOk("result_output_file"); ok && output.(string) != "" {
 		return writeToFile(output.(string), list)

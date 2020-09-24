@@ -45,7 +45,6 @@ func dataSourceTencentCloudAPIGatewayCustomerDomains() *schema.Resource {
 				Optional:    true,
 				Description: "Used to save results.",
 			},
-
 			//Computed
 			"list": {
 				Type:        schema.TypeList,
@@ -81,7 +80,7 @@ func dataSourceTencentCloudAPIGatewayCustomerDomains() *schema.Resource {
 						"net_type": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Network type, valid value: `INNER` or `OUTER`.",
+							Description: "Network type.",
 						},
 						"path_mappings": {
 							Type:        schema.TypeList,
@@ -97,7 +96,7 @@ func dataSourceTencentCloudAPIGatewayCustomerDomains() *schema.Resource {
 									"environment": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "Release environment, optional values are [test, prepub, release].",
+										Description: "Release environment.",
 									},
 								},
 							},

@@ -30,8 +30,8 @@ resource "tencentcloud_api_gateway_custom_domain" "service" {
 The following arguments are supported:
 
 * `default_domain` - (Required) Default domain name.
-* `net_type` - (Required) Network type. Valid values: OUTER, INNER.
-* `protocol` - (Required) Protocol supported by service. Valid values: http, https, http&https.
+* `net_type` - (Required) Network type. Valid values: `OUTER`, `INNER`.
+* `protocol` - (Required) Protocol supported by service. Valid values: `http`, `https`,`http&https`.
 * `service_id` - (Required, ForceNew) Unique service ID.
 * `sub_domain` - (Required) Custom domain name to be bound.
 * `certificate_id` - (Optional) Unique certificate ID of the custom domain name to be bound. The certificate can be uploaded if Protocol is https or http&https.

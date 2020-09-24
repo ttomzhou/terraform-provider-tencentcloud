@@ -129,9 +129,9 @@ func testAccCheckThrottlingAPIExists(n string) resource.TestCheckFunc {
 
 const testAccThrottlingAPI = `
 resource "tencentcloud_api_gateway_throttling_api" "foo" {
-	service_id = "service-4r4xrrz4"
-	strategy = "400"
+	service_id       = "service-4r4xrrz4"
+	strategy         = "400"
 	environment_name = "test"
-	api_ids = ["api-lukm33yk"]
+	api_ids          = ["api-lukm33yk"]
 }
 `

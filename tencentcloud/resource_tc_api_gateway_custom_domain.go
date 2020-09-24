@@ -50,13 +50,13 @@ func resourceTencentCloudAPIGatewayCustomDomain() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateNotEmpty,
-				Description:  "Protocol supported by service. Valid values: http, https, http&https.",
+				Description:  "Protocol supported by service. Valid values: `http`, `https`,`http&https`.",
 			},
 			"net_type": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateNotEmpty,
-				Description:  "Network type. Valid values: OUTER, INNER.",
+				Description:  "Network type. Valid values: `OUTER`, `INNER`.",
 			},
 			"is_default_mapping": {
 				Type:        schema.TypeBool,
@@ -93,29 +93,29 @@ func resourceTencentCloudAPIGatewayCustomDomain() *schema.Resource {
 	}
 }
 
-func resourceTencentCloudAPIGatewayCustomDomainCreate(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayCustomDomainCreate(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("resource.tencentcloud_api_gateway_custom_domain.create")()
 	var (
 		logId = getLogId(contextNil)
 		ctx   = context.WithValue(context.TODO(), logIdKey, logId)
 
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
-		serviceId         = data.Get("service_id").(string)
-		subDomain         = data.Get("sub_domain").(string)
-		protocol          = data.Get("protocol").(string)
-		netType           = data.Get("net_type").(string)
-		defaultDomain     = data.Get("default_domain").(string)
-		isDefaultMapping  = data.Get("is_default_mapping").(bool)
+		serviceId         = d.Get("service_id").(string)
+		subDomain         = d.Get("sub_domain").(string)
+		protocol          = d.Get("protocol").(string)
+		netType           = d.Get("net_type").(string)
+		defaultDomain     = d.Get("default_domain").(string)
+		isDefaultMapping  = d.Get("is_default_mapping").(bool)
 		certificateId     string
 		pathMappings      []string
 
 		err error
 	)
 
-	if v, ok := data.GetOk("certificate_id"); ok {
+	if v, ok := d.GetOk("certificate_id"); ok {
 		certificateId = v.(string)
 	}
-	if v, ok := data.GetOk("path_mappings"); ok {
+	if v, ok := d.GetOk("path_mappings"); ok {
 		pathMappingTmps := v.(*schema.Set).List()
 		for _, v := range pathMappingTmps {
 			pathMappings = append(pathMappings, v.(string))
@@ -127,8 +127,8 @@ func resourceTencentCloudAPIGatewayCustomDomainCreate(data *schema.ResourceData,
 		return err
 	}
 
-	data.SetId(strings.Join([]string{serviceId, subDomain}, FILED_SP))
-	return resourceTencentCloudAPIGatewayCustomDomainRead(data, meta)
+	d.SetId(strings.Join([]string{serviceId, subDomain}, FILED_SP))
+	return resourceTencentCloudAPIGatewayCustomDomainRead(d, meta)
 }
 
 func resourceTencentCloudAPIGatewayCustomDomainRead(data *schema.ResourceData, meta interface{}) error {
@@ -181,13 +181,13 @@ func resourceTencentCloudAPIGatewayCustomDomainRead(data *schema.ResourceData, m
 	return nil
 }
 
-func resourceTencentCloudAPIGatewayCustomDomainUpdate(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayCustomDomainUpdate(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("resource.tencentcloud_api_gateway_custom_domain.update")()
 	var (
 		logId             = getLogId(contextNil)
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
-		id                = data.Id()
+		id                = d.Id()
 
 		subDomain        string
 		isDefaultMapping bool
@@ -202,54 +202,58 @@ func resourceTencentCloudAPIGatewayCustomDomainUpdate(data *schema.ResourceData,
 	}
 	serviceId := results[0]
 
-	oldInterfaceSubDomain, newInterfaceSubDomain := data.GetChange("sub_domain")
-	if data.HasChange("sub_domain") {
+	oldInterfaceSubDomain, newInterfaceSubDomain := d.GetChange("sub_domain")
+	if d.HasChange("sub_domain") {
 		subDomain = newInterfaceSubDomain.(string)
 	} else {
 		subDomain = oldInterfaceSubDomain.(string)
 	}
 
-	oldInterfaceName, newInterfaceName := data.GetChange("is_default_mapping")
-	if data.HasChange("is_default_mapping") {
+	oldInterfaceName, newInterfaceName := d.GetChange("is_default_mapping")
+	if d.HasChange("is_default_mapping") {
 		isDefaultMapping = newInterfaceName.(bool)
 	} else {
 		isDefaultMapping = oldInterfaceName.(bool)
 	}
 
-	_, newInterfaceCertificateId := data.GetChange("certificate_id")
-	if data.HasChange("certificate_id") {
+	_, newInterfaceCertificateId := d.GetChange("certificate_id")
+	if d.HasChange("certificate_id") {
 		certificateId = newInterfaceCertificateId.(string)
 	}
 
-	_, newInterfaceNetType := data.GetChange("net_type")
-	if data.HasChange("net_type") {
+	_, newInterfaceNetType := d.GetChange("net_type")
+	if d.HasChange("net_type") {
 		netType = newInterfaceNetType.(string)
 	}
 
-	_, newInterfaceProtocol := data.GetChange("protocol")
-	if data.HasChange("protocol") {
+	_, newInterfaceProtocol := d.GetChange("protocol")
+	if d.HasChange("protocol") {
 		protocol = newInterfaceProtocol.(string)
 	}
 
-	_, newInterfacePathMappings := data.GetChange("path_mappings")
-	if data.HasChange("path_mappings") {
+	_, newInterfacePathMappings := d.GetChange("path_mappings")
+	if d.HasChange("path_mappings") {
 		pathMappingsTmp := newInterfacePathMappings.([]interface{})
 		for _, v := range pathMappingsTmp {
 			pathMappings = append(pathMappings, v.(string))
 		}
 	}
 
-	return apiGatewayService.ModifySubDomainService(ctx, serviceId, subDomain, isDefaultMapping, certificateId, protocol, netType, pathMappings)
+	err := apiGatewayService.ModifySubDomainService(ctx, serviceId, subDomain, isDefaultMapping, certificateId, protocol, netType, pathMappings)
+	if err != nil {
+		return err
+	}
+	return resourceTencentCloudAPIGatewayCustomDomainRead(d, meta)
 }
 
-func resourceTencentCloudAPIGatewayCustomDomainDelete(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayCustomDomainDelete(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("resource.tencentcloud_api_gateway_custom_domain.delete")()
 
 	var (
 		logId = getLogId(contextNil)
 		ctx   = context.WithValue(context.TODO(), logIdKey, logId)
 
-		id                = data.Id()
+		id                = d.Id()
 		apigatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
 	)
 

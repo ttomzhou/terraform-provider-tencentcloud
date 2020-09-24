@@ -32,6 +32,7 @@ resource "tencentcloud_api_gateway_api" "api" {
   response_type            = "HTML"
   response_success_example = "success"
   response_fail_example    = "fail"
+  
   response_error_codes {
     code           = 100
     msg            = "system error"

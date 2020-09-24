@@ -85,16 +85,16 @@ func resourceTencentCloudAPIGatewayThrottlingService() *schema.Resource {
 	}
 }
 
-func resourceTencentCloudAPIGatewayThrottlingServiceCreate(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayThrottlingServiceCreate(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("resource.tencentcloud_api_gateway_throttling_service.create")()
 	var (
 		logId = getLogId(contextNil)
 		ctx   = context.WithValue(context.TODO(), logIdKey, logId)
 
 		throttlingService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
-		serviceId         = data.Get("service_id").(string)
-		strategy          = data.Get("strategy").(int)
-		environmentName   = data.Get("environment_names").([]interface{})
+		serviceId         = d.Get("service_id").(string)
+		strategy          = d.Get("strategy").(int)
+		environmentName   = d.Get("environment_names").([]interface{})
 		nameResults       []string
 		err               error
 	)
@@ -107,24 +107,23 @@ func resourceTencentCloudAPIGatewayThrottlingServiceCreate(data *schema.Resource
 	if err != nil {
 		return err
 	}
-	data.SetId(serviceId)
-	return resourceTencentCloudAPIGatewayThrottlingServiceRead(data, meta)
+	d.SetId(serviceId)
+	return resourceTencentCloudAPIGatewayThrottlingServiceRead(d, meta)
 }
 
-func resourceTencentCloudAPIGatewayThrottlingServiceRead(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayThrottlingServiceRead(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("resource.tencentcloud_api_gateway_throttling_service.read")()
 	var (
 		logId = getLogId(contextNil)
 		ctx   = context.WithValue(context.TODO(), logIdKey, logId)
 
 		throttlingService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
-		serviceId         = data.Id()
+		serviceId         = d.Id()
 		err               error
 	)
 
 	environmentList, err := throttlingService.DescribeServiceEnvironmentStrategyList(ctx, serviceId)
 	if err != nil {
-		data.SetId("")
 		return err
 	}
 
@@ -143,34 +142,33 @@ func resourceTencentCloudAPIGatewayThrottlingServiceRead(data *schema.ResourceDa
 		}
 		environmentResults = append(environmentResults, item)
 	}
-	data.Set("service_id", serviceId)
-	data.Set("environments", environmentResults)
+	d.Set("service_id", serviceId)
+	d.Set("environments", environmentResults)
 	return nil
 }
 
-func resourceTencentCloudAPIGatewayThrottlingServiceUpdate(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayThrottlingServiceUpdate(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("resource.tencentcloud_api_gateway_throttling_service.update")()
 	var (
 		logId             = getLogId(contextNil)
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 		throttlingService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
-		serviceId         = data.Id()
+		serviceId         = d.Id()
 		err               error
 
 		strategy         int64
 		environmentNames []string
 	)
 
-	oldInterfaceStrategy, newInterfaceStrategy := data.GetChange("strategy")
-	if data.HasChange("strategy") {
+	oldInterfaceStrategy, newInterfaceStrategy := d.GetChange("strategy")
+	if d.HasChange("strategy") {
 		strategy = int64(newInterfaceStrategy.(int))
 	} else {
 		strategy = int64(oldInterfaceStrategy.(int))
 	}
 
-	oldInterfaceNames, newInterfaceNames := data.GetChange("environment_names")
-	if data.HasChange("environment_names") {
-
+	oldInterfaceNames, newInterfaceNames := d.GetChange("environment_names")
+	if d.HasChange("environment_names") {
 		apiId := newInterfaceNames.([]interface{})
 		for _, v := range apiId {
 			environmentNames = append(environmentNames, v.(string))
@@ -187,10 +185,10 @@ func resourceTencentCloudAPIGatewayThrottlingServiceUpdate(data *schema.Resource
 		return err
 	}
 
-	return nil
+	return resourceTencentCloudAPIGatewayThrottlingServiceRead(d, meta)
 }
 
-func resourceTencentCloudAPIGatewayThrottlingServiceDelete(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayThrottlingServiceDelete(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("resource.tencentcloud_api_gateway_throttling_service.delete")()
 
 	var (
@@ -198,7 +196,7 @@ func resourceTencentCloudAPIGatewayThrottlingServiceDelete(data *schema.Resource
 		ctx   = context.WithValue(context.TODO(), logIdKey, logId)
 		err   error
 
-		serviceId               = data.Id()
+		serviceId               = d.Id()
 		throttlingService       = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
 		strategy          int64 = 5000
 		environmentNames  []string

@@ -79,6 +79,7 @@ func resourceTencentCloudAPIGatewayService() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
+				Default:      "Pv4",
 				ValidateFunc: validateAllowedStringValue(API_GATEWAY_NET_IP_VERSIONS),
 				Description:  "IP version number. Valid values: `IPv4` (default value), `IPv6`.",
 			},
@@ -198,7 +199,7 @@ func resourceTencentCloudAPIGatewayService() *schema.Resource {
 	}
 }
 
-func resourceTencentCloudAPIGatewayServiceCreate(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayServiceCreate(d *schema.ResourceData, meta interface{}) error {
 
 	defer logElapsed("resource.tencentcloud_api_gateway_service.create")()
 
@@ -207,14 +208,14 @@ func resourceTencentCloudAPIGatewayServiceCreate(data *schema.ResourceData, meta
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
 
-		serviceName      = data.Get("service_name").(string)
-		protocol         = data.Get("protocol").(string)
-		serviceDesc      = data.Get("service_desc").(string)
-		exclusiveSetName = data.Get("exclusive_set_name").(string)
-		ipVersion        = data.Get("ip_version").(string)
-		setServerName    = data.Get("set_server_name").(string)
-		appidType        = data.Get("appid_type").(string)
-		netTypes         = helper.InterfacesStrings(data.Get("net_type").(*schema.Set).List())
+		serviceName      = d.Get("service_name").(string)
+		protocol         = d.Get("protocol").(string)
+		serviceDesc      = d.Get("service_desc").(string)
+		exclusiveSetName = d.Get("exclusive_set_name").(string)
+		ipVersion        = d.Get("ip_version").(string)
+		setServerName    = d.Get("set_server_name").(string)
+		appidType        = d.Get("appid_type").(string)
+		netTypes         = helper.InterfacesStrings(d.Get("net_type").(*schema.Set).List())
 
 		serviceId     string
 		inErr, outErr error
@@ -244,7 +245,6 @@ func resourceTencentCloudAPIGatewayServiceCreate(data *schema.ResourceData, meta
 	if outErr != nil {
 		return outErr
 	}
-	data.SetId(serviceId)
 
 	//wait service create ok
 	if outErr := resource.Retry(readRetryTimeout, func() *resource.RetryError {
@@ -260,13 +260,15 @@ func resourceTencentCloudAPIGatewayServiceCreate(data *schema.ResourceData, meta
 	}); outErr != nil {
 		return outErr
 	}
-	return resourceTencentCloudAPIGatewayServiceRead(data, meta)
+
+	d.SetId(serviceId)
+	return resourceTencentCloudAPIGatewayServiceRead(d, meta)
 
 }
-func resourceTencentCloudAPIGatewayServiceRead(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayServiceRead(d *schema.ResourceData, meta interface{}) error {
 
 	defer logElapsed("resource.tencentcloud_api_gateway_service.create")()
-	defer inconsistentCheck(data, meta)()
+	defer inconsistentCheck(d, meta)()
 
 	var (
 		logId             = getLogId(contextNil)
@@ -276,7 +278,7 @@ func resourceTencentCloudAPIGatewayServiceRead(data *schema.ResourceData, meta i
 		info apigateway.DescribeServiceResponse
 		has  bool
 
-		serviceId     = data.Id()
+		serviceId     = d.Id()
 		inErr, outErr error
 	)
 
@@ -290,7 +292,7 @@ func resourceTencentCloudAPIGatewayServiceRead(data *schema.ResourceData, meta i
 		return outErr
 	}
 	if !has {
-		data.SetId("")
+		d.SetId("")
 		return nil
 	}
 
@@ -358,31 +360,25 @@ func resourceTencentCloudAPIGatewayServiceRead(data *schema.ResourceData, meta i
 			})
 	}
 
-	errs := []error{
-		data.Set("service_id", serviceId),
-		data.Set("service_name", info.Response.ServiceName),
-		data.Set("protocol", info.Response.Protocol),
-		data.Set("service_desc", info.Response.ServiceDesc),
-		data.Set("exclusive_set_name", info.Response.ExclusiveSetName),
-		data.Set("ip_version", info.Response.IpVersion),
-		data.Set("net_type", info.Response.NetTypes),
-		data.Set("internal_sub_domain", info.Response.InternalSubDomain),
-		data.Set("outer_sub_domain", info.Response.OuterSubDomain),
-		data.Set("inner_http_port", info.Response.InnerHttpPort),
-		data.Set("inner_https_port", info.Response.InnerHttpsPort),
-		data.Set("modify_time", info.Response.ModifiedTime),
-		data.Set("create_time", info.Response.CreatedTime),
-		data.Set("api_list", apiList),
-		data.Set("usage_plan_list", planList),
-	}
-	for _, err := range errs {
-		if err != nil {
-			return err
-		}
-	}
+	d.Set("service_id", serviceId)
+	d.Set("service_name", info.Response.ServiceName)
+	d.Set("protocol", info.Response.Protocol)
+	d.Set("service_desc", info.Response.ServiceDesc)
+	d.Set("exclusive_set_name", info.Response.ExclusiveSetName)
+	d.Set("ip_version", info.Response.IpVersion)
+	d.Set("net_type", info.Response.NetTypes)
+	d.Set("internal_sub_domain", info.Response.InternalSubDomain)
+	d.Set("outer_sub_domain", info.Response.OuterSubDomain)
+	d.Set("inner_http_port", info.Response.InnerHttpPort)
+	d.Set("inner_https_port", info.Response.InnerHttpsPort)
+	d.Set("modify_time", info.Response.ModifiedTime)
+	d.Set("create_time", info.Response.CreatedTime)
+	d.Set("api_list", apiList)
+	d.Set("usage_plan_list", planList)
+
 	return nil
 }
-func resourceTencentCloudAPIGatewayServiceUpdate(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayServiceUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	defer logElapsed("resource.tencentcloud_api_gateway_service.update")()
 
@@ -391,12 +387,12 @@ func resourceTencentCloudAPIGatewayServiceUpdate(data *schema.ResourceData, meta
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
 
-		serviceName = data.Get("service_name").(string)
-		protocol    = data.Get("protocol").(string)
-		serviceDesc = data.Get("service_desc").(string)
-		netTypes    = helper.InterfacesStrings(data.Get("net_type").(*schema.Set).List())
+		serviceName = d.Get("service_name").(string)
+		protocol    = d.Get("protocol").(string)
+		serviceDesc = d.Get("service_desc").(string)
+		netTypes    = helper.InterfacesStrings(d.Get("net_type").(*schema.Set).List())
 
-		serviceId     = data.Id()
+		serviceId     = d.Id()
 		inErr, outErr error
 	)
 
@@ -420,42 +416,42 @@ func resourceTencentCloudAPIGatewayServiceUpdate(data *schema.ResourceData, meta
 	if outErr != nil {
 		return outErr
 	}
-	return resourceTencentCloudAPIGatewayServiceRead(data, meta)
+	return resourceTencentCloudAPIGatewayServiceRead(d, meta)
 }
 
-func resourceTencentCloudAPIGatewayServiceDelete(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayServiceDelete(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("resource.tencentcloud_api_gateway_service.delete")()
 	var (
 		logId             = getLogId(contextNil)
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
-		serviceId         = data.Id()
-		inErr, outErr     error
+		serviceId         = d.Id()
+		err               error
 	)
 
 	for _, env := range API_GATEWAY_SERVICE_ENVS {
-		outErr = resource.Retry(writeRetryTimeout, func() *resource.RetryError {
-			if inErr = apiGatewayService.UnReleaseService(ctx,
+		err = resource.Retry(writeRetryTimeout, func() *resource.RetryError {
+			if err = apiGatewayService.UnReleaseService(ctx,
 				serviceId,
-				env); inErr != nil {
-				return retryError(inErr, InternalError)
+				env); err != nil {
+				return retryError(err, InternalError)
 			}
 			return nil
 		})
-		if outErr != nil {
-			return outErr
+		if err != nil {
+			return err
 		}
 	}
 
-	outErr = resource.Retry(writeRetryTimeout, func() *resource.RetryError {
-		if inErr = apiGatewayService.DeleteService(ctx,
-			serviceId); inErr != nil {
-			return retryError(inErr, InternalError)
+	err = resource.Retry(writeRetryTimeout, func() *resource.RetryError {
+		if err = apiGatewayService.DeleteService(ctx,
+			serviceId); err != nil {
+			return retryError(err, InternalError)
 		}
 		return nil
 	})
-	if outErr != nil {
-		return outErr
+	if err != nil {
+		return err
 	}
 	return nil
 }

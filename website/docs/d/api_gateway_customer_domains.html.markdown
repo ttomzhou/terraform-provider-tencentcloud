@@ -44,9 +44,9 @@ In addition to all arguments above, the following attributes are exported:
   * `certificate_id` - ID of the certificate.
   * `domain_name` - Domain name.
   * `is_default_mapping` - Whether to use default path mapping, true means to use default path mapping; if false, means to use custom path mapping.
-  * `net_type` - Network type, valid value: `INNER` or `OUTER`.
+  * `net_type` - Network type.
   * `path_mappings` - Domain name mapping path and environment list.
-    * `environment` - Release environment, optional values are [test, prepub, release].
+    * `environment` - Release environment.
     * `path` - The domain mapping path.
   * `protocol` - Custom domain name agreement type.
   * `status` - Domain name resolution status. true means normal parsing, false means parsing failed.
