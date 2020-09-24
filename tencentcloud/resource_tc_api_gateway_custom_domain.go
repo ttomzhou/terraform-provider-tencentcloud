@@ -131,53 +131,53 @@ func resourceTencentCloudAPIGatewayCustomDomainCreate(d *schema.ResourceData, me
 	return resourceTencentCloudAPIGatewayCustomDomainRead(d, meta)
 }
 
-func resourceTencentCloudAPIGatewayCustomDomainRead(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayCustomDomainRead(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("resource.tencentcloud_api_gateway_custom_domain.read")()
 	var (
 		logId = getLogId(contextNil)
 		ctx   = context.WithValue(context.TODO(), logIdKey, logId)
 
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
-		id                = data.Id()
+		id                = d.Id()
 		err               error
 	)
 
 	results := strings.Split(id, FILED_SP)
 	if len(results) != 2 {
-		data.SetId("")
+		d.SetId("")
 		return fmt.Errorf("ids param is error. id:  %s", id)
 	}
 	serviceId := results[0]
 	subDomain := results[1]
 	resultList, err := apiGatewayService.DescribeServiceSubDomainsService(ctx, serviceId, subDomain)
 	if err != nil {
-		data.SetId("")
+		d.SetId("")
 		return err
 	}
 
 	if len(resultList) == 0 {
-		data.SetId("")
+		d.SetId("")
 		return fmt.Errorf("custom domain: %s not found of service: %s.", subDomain, serviceId)
 	}
 
 	resultInfo := resultList[0]
 	info, err := apiGatewayService.DescribeServiceSubDomainMappings(ctx, serviceId, *resultInfo.DomainName)
 	if err != nil {
-		data.SetId("")
+		d.SetId("")
 		return fmt.Errorf("DescribeServiceSubDomainMappings err: %s", err.Error())
 	}
 	pathMap := make([]string, 0, len(info.PathMappingSet))
 	for i := range info.PathMappingSet {
 		pathMap = append(pathMap, *info.PathMappingSet[i].Path+FILED_SP+*info.PathMappingSet[i].Environment)
 	}
-	data.Set("path_mappings", pathMap)
-	data.Set("domain_name", resultInfo.DomainName)
-	data.Set("status", resultInfo.Status)
-	data.Set("certificate_id", resultInfo.CertificateId)
-	data.Set("is_default_mapping", resultInfo.IsDefaultMapping)
-	data.Set("protocol", resultInfo.Protocol)
-	data.Set("net_type", resultInfo.NetType)
-	data.Set("service_id", serviceId)
+	d.Set("path_mappings", pathMap)
+	d.Set("domain_name", resultInfo.DomainName)
+	d.Set("status", resultInfo.Status)
+	d.Set("certificate_id", resultInfo.CertificateId)
+	d.Set("is_default_mapping", resultInfo.IsDefaultMapping)
+	d.Set("protocol", resultInfo.Protocol)
+	d.Set("net_type", resultInfo.NetType)
+	d.Set("service_id", serviceId)
 	return nil
 }
 

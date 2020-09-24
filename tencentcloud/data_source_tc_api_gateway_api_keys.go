@@ -46,7 +46,7 @@ func dataSourceTencentCloudAPIGatewayAPIKeys() *schema.Resource {
 			"access_key_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Created api key id, This field is exactly the same as id.",
+				Description: "Created API key ID, This field is exactly the same as ID.",
 			},
 			"result_output_file": {
 				Type:        schema.TypeString,
@@ -57,13 +57,13 @@ func dataSourceTencentCloudAPIGatewayAPIKeys() *schema.Resource {
 			"list": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: "A list of api keys. Each element contains the following attributes:",
+				Description: "A list of API keys. Each element contains the following attributes:",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"api_key_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "API key id.",
+							Description: "API key ID.",
 						},
 						"status": {
 							Type:        schema.TypeString,
@@ -73,12 +73,12 @@ func dataSourceTencentCloudAPIGatewayAPIKeys() *schema.Resource {
 						"access_key_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Created api key id, This field is exactly the same as `api_key_id`.",
+							Description: "Created API key ID, This field is exactly the same as `api_key_id`.",
 						},
 						"access_key_secret": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Created api key.",
+							Description: "Created API key.",
 						},
 						"modify_time": {
 							Type:        schema.TypeString,
@@ -97,7 +97,7 @@ func dataSourceTencentCloudAPIGatewayAPIKeys() *schema.Resource {
 	}
 }
 
-func dataSourceTencentCloudAPIGatewayAPIKeysRead(data *schema.ResourceData, meta interface{}) error {
+func dataSourceTencentCloudAPIGatewayAPIKeysRead(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("data_source.tencentcloud_api_gateway_api_keys.read")()
 
 	var (
@@ -105,12 +105,18 @@ func dataSourceTencentCloudAPIGatewayAPIKeysRead(data *schema.ResourceData, meta
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
 
-		secretName  = data.Get("secret_name").(string)
-		accessKeyId = data.Get("access_key_id").(string)
-		apiKeySet   []*apigateway.ApiKey
+		apiKeySet []*apigateway.ApiKey
 
-		inErr error
+		secretName, accessKeyId string
+		inErr                   error
 	)
+
+	if v, ok := d.GetOk("secret_name"); ok {
+		secretName = v.(string)
+	}
+	if v, ok := d.GetOk("access_key_id"); ok {
+		accessKeyId = v.(string)
+	}
 
 	if outErr := resource.Retry(writeRetryTimeout, func() *resource.RetryError {
 		apiKeySet, inErr = apiGatewayService.DescribeApiKeysStatus(ctx, secretName, accessKeyId)
@@ -142,13 +148,13 @@ func dataSourceTencentCloudAPIGatewayAPIKeysRead(data *schema.ResourceData, meta
 		return err
 	}
 
-	if err = data.Set("list", list); err != nil {
+	if err = d.Set("list", list); err != nil {
 		log.Printf("[CRITAL]%s provider set list fail, reason:%s\n ", logId, err.Error())
 	}
 
-	data.SetId(string(byteId))
+	d.SetId(string(byteId))
 
-	if output, ok := data.GetOk("result_output_file"); ok && output.(string) != "" {
+	if output, ok := d.GetOk("result_output_file"); ok && output.(string) != "" {
 		return writeToFile(output.(string), list)
 	}
 	return nil

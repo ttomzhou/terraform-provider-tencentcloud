@@ -5,11 +5,11 @@ Example Usage
 
 ```hcl
 resource "tencentcloud_audit" "foo" {
-  name        = "audittest"
-  cos_bucket	= "test"
-  cos_region = "ap-hongkong"
-  log_file_prefix = "test"
-  audit_switch = true
+  name                 = "audittest"
+  cos_bucket           = "test"
+  cos_region           = "ap-hongkong"
+  log_file_prefix      = "test"
+  audit_switch         = true
   read_write_attribute = 3
 }
 ```
@@ -31,8 +31,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	audit "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/cloudaudit/v20190319"
-
-	//sdkErrors "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/errors"
 	"github.com/tencentcloudstack/terraform-provider-tencentcloud/tencentcloud/internal/helper"
 	"github.com/tencentcloudstack/terraform-provider-tencentcloud/tencentcloud/ratelimit"
 )

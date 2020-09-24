@@ -5,10 +5,10 @@ Example Usage
 
 ```hcl
 resource "tencentcloud_api_gateway_ip_strategy" "test"{
-	service_id 	  = "service-ohxqslqe"
-	strategy_name = "tf_test"
-	strategy_type = "BLACK"
-	strategy_data = "9.9.9.9"
+	service_id      = "service-ohxqslqe"
+	strategy_name	= "tf_test"
+	strategy_type	= "BLACK"
+	strategy_data	= "9.9.9.9"
 }
 
 data "tencentcloud_api_gateway_ip_strategies" "id" {
@@ -36,19 +36,18 @@ func dataSourceTencentCloudAPIGatewayIpStrategy() *schema.Resource {
 			"service_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "ID of the service to be queried.",
+				Description: "The service ID to be queried.",
 			},
 			"strategy_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Name of ip policy.",
+				Description: "Name of IP policy.",
 			},
 			"result_output_file": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Used to save results.",
 			},
-
 			// Computed values.
 			"list": {
 				Type:        schema.TypeList,
@@ -59,7 +58,7 @@ func dataSourceTencentCloudAPIGatewayIpStrategy() *schema.Resource {
 						"strategy_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "ID of the strategy.",
+							Description: "The strategy ID.",
 						},
 						"strategy_name": {
 							Type:        schema.TypeString,
@@ -69,17 +68,17 @@ func dataSourceTencentCloudAPIGatewayIpStrategy() *schema.Resource {
 						"strategy_type": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Type of the strategy. Valid values: `WHITE` (white list) and `BLACK` (black list).",
+							Description: "Type of the strategy.",
 						},
 						"ip_list": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The list of ip.",
+							Description: "The list of IP.",
 						},
 						"service_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The service id.",
+							Description: "The service ID.",
 						},
 						"bind_api_total_count": {
 							Type:        schema.TypeInt,
@@ -105,79 +104,79 @@ func dataSourceTencentCloudAPIGatewayIpStrategy() *schema.Resource {
 									"service_id": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "The service id.",
+										Description: "The service ID.",
 									},
 									"api_id": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "The api id.",
+										Description: "The API ID.",
 									},
 									"api_desc": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "The api interface description.",
+										Description: "API interface description.",
 									},
 									"api_name": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "The name of the api interface.",
+										Description: "API name.",
 									},
 									"vpc_id": {
 										Type:        schema.TypeInt,
 										Computed:    true,
-										Description: "The vpc id.",
+										Description: "VPC ID.",
 									},
 									"uniq_vpc_id": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "The vpc unique id.",
+										Description: "VPC unique ID.",
 									},
 									"api_type": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "The api type. The values are `NORMAL` (common api) and `TSF` (microservice api).",
+										Description: "API type. The values are `NORMAL` (common API) and `TSF` (microservice API).",
 									},
 									"protocol": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "The api protocol.",
+										Description: "API protocol.",
 									},
 									"auth_type": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "The api authentication type. The value is `SECRET` (key pair authentication), `NONE` (no authentication), and `OAUTH`.",
+										Description: "API authentication type. The value is `SECRET` (key pair authentication), `NONE` (no authentication), and `OAUTH`.",
 									},
 									"api_business_type": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "The type of oauth api. This field is valid when the authType is `OAUTH`, and the values are `NORMAL` (business api) and `OAUTH` (authorization api).",
+										Description: "The type of oauth API. This field is valid when the authType is `OAUTH`, and the values are `NORMAL` (business API) and `OAUTH` (authorization API).",
 									},
 									"auth_relation_api_id": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "The unique id of the associated authorization api, which takes effect when the authType is `OAUTH` and `ApiBusinessType` is normal. Identifies the unique id of the oauth2.0 authorization api bound to the business api.",
+										Description: "The unique ID of the associated authorization API, which takes effect when the authType is `OAUTH` and `ApiBusinessType` is normal. Identifies the unique ID of the oauth2.0 authorization API bound to the business API.",
 									},
 									"tags": {
 										Type:        schema.TypeList,
 										Elem:        &schema.Schema{Type: schema.TypeString},
 										Computed:    true,
-										Description: "The label information associated with the api.",
+										Description: "The label information associated with the API.",
 									},
 									"path": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "The api path.",
+										Description: "API path.",
 									},
 									"method": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "The api request method.",
+										Description: "API request method.",
 									},
 									"relation_business_api_ids": {
 										Type:        schema.TypeList,
 										Elem:        &schema.Schema{Type: schema.TypeString},
 										Computed:    true,
-										Description: "List of business api associated with authorized api.",
+										Description: "List of business api associated with authorized API.",
 									},
 									"oauth_config": {
 										Type:        schema.TypeMap,
@@ -212,13 +211,16 @@ func dataSourceTencentCloudAPIGatewayIpStrategyRead(d *schema.ResourceData, meta
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
 
-		serviceId    = d.Get("service_id").(string)
-		strategyName = d.Get("strategy_name").(string)
-		infos        []*apigateway.IPStrategy
-		list         []map[string]interface{}
+		serviceId = d.Get("service_id").(string)
+		infos     []*apigateway.IPStrategy
+		list      []map[string]interface{}
 
-		err error
+		strategyName string
+		err          error
 	)
+	if v, ok := d.GetOk("strategy_name"); ok {
+		strategyName = v.(string)
+	}
 
 	if err = resource.Retry(readRetryTimeout, func() *resource.RetryError {
 		infos, err = apiGatewayService.DescribeIPStrategysStatus(ctx, serviceId, strategyName)

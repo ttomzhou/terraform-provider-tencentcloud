@@ -88,7 +88,7 @@ func resourceTencentCloudAPIGatewayUsagePlanAttachment() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "ID of the api. This parameter will be required when `bind_type` is `API`.",
+				Description: "ID of the API. This parameter will be required when `bind_type` is `API`.",
 			},
 		},
 	}
