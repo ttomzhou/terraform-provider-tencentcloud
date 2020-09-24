@@ -46,7 +46,7 @@ func resourceTencentCloudAPIGatewayStrategyAttachment() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateNotEmpty,
-				Description:  "The id of the API gateway service.",
+				Description:  "The ID of the API gateway service.",
 			},
 
 			"strategy_id": {
@@ -54,7 +54,7 @@ func resourceTencentCloudAPIGatewayStrategyAttachment() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateNotEmpty,
-				Description:  "The id of the API gateway strategy.",
+				Description:  "The ID of the API gateway strategy.",
 			},
 			"environment_name": {
 				Type:         schema.TypeString,

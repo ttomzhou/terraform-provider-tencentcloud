@@ -48,7 +48,7 @@ func resourceTencentCloudAPIGatewayIPStrategy() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateNotEmpty,
-				Description:  "The id of the API gateway service.",
+				Description:  "The ID of the API gateway service.",
 			},
 
 			"strategy_name": {
@@ -81,7 +81,7 @@ func resourceTencentCloudAPIGatewayIPStrategy() *schema.Resource {
 			"strategy_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "IP policy id.",
+				Description: "IP policy ID.",
 			},
 		},
 	}
