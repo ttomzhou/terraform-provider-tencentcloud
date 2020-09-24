@@ -63,17 +63,17 @@ func dataSourceTencentCloudAPIGatewayAPIs() *schema.Resource {
 			"service_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Service id for query.",
+				Description: "Service ID for query.",
 			},
 			"api_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Custom api name.",
+				Description: "Custom API name.",
 			},
 			"api_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Created api id.",
+				Description: "Created API ID.",
 			},
 			"result_output_file": {
 				Type:        schema.TypeString,
@@ -85,23 +85,23 @@ func dataSourceTencentCloudAPIGatewayAPIs() *schema.Resource {
 			"list": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: "A list of apis. Each element contains the following attributes:",
+				Description: "A list of APIs. Each element contains the following attributes:",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"service_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Which service this api belongs.Refer to resource `tencentcloud_api_gateway_service`.",
+							Description: "Which service this API belongs.Refer to resource `tencentcloud_api_gateway_service`.",
 						},
 						"api_name": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Custom api name.",
+							Description: "Custom API name.",
 						},
 						"api_desc": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Custom api description.",
+							Description: "Custom API description.",
 						},
 						"auth_type": {
 							Type:        schema.TypeString,
@@ -185,7 +185,7 @@ func dataSourceTencentCloudAPIGatewayAPIs() *schema.Resource {
 						"service_config_vpc_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Unique vpc id.",
+							Description: "Unique VPC ID.",
 						},
 						"service_config_url": {
 							Type:        schema.TypeString,
@@ -288,7 +288,7 @@ func dataSourceTencentCloudAPIGatewayAPIs() *schema.Resource {
 	}
 }
 
-func dataSourceTencentCloudAPIGatewayAPIsRead(data *schema.ResourceData, meta interface{}) error {
+func dataSourceTencentCloudAPIGatewayAPIsRead(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("data_source.tencentcloud_api_gateway_apis.read")()
 
 	var (
@@ -296,9 +296,9 @@ func dataSourceTencentCloudAPIGatewayAPIsRead(data *schema.ResourceData, meta in
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
 
-		apiName       = data.Get("api_name").(string)
-		apiId         = data.Get("api_id").(string)
-		serviceId     = data.Get("service_id").(string)
+		apiName       = d.Get("api_name").(string)
+		apiId         = d.Get("api_id").(string)
+		serviceId     = d.Get("service_id").(string)
 		apiSet        []*apigateway.DesApisStatus
 		inErr, outErr error
 	)
@@ -413,13 +413,13 @@ func dataSourceTencentCloudAPIGatewayAPIsRead(data *schema.ResourceData, meta in
 		return err
 	}
 
-	if err = data.Set("list", list); err != nil {
+	if err = d.Set("list", list); err != nil {
 		log.Printf("[CRITAL]%s provider set list fail, reason:%s\n ", logId, err.Error())
 	}
 
-	data.SetId(string(byteId))
+	d.SetId(string(byteId))
 
-	if output, ok := data.GetOk("result_output_file"); ok && output.(string) != "" {
+	if output, ok := d.GetOk("result_output_file"); ok && output.(string) != "" {
 		return writeToFile(output.(string), list)
 	}
 	return nil

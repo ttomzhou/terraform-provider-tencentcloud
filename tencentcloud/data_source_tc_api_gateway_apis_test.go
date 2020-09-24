@@ -18,7 +18,6 @@ func TestAccTencentAPIGatewayAPIsDataSource(t *testing.T) {
 				Config: testAccTestAccTencentAPIGatewayAPIs(),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckAPIGatewayAPIExists(testAPIGatewayAPIResourceName+".api"),
-
 					resource.TestCheckResourceAttrSet(testAPIGatewayAPIsDataSourceName+".name", "list.0.api_name"),
 					resource.TestCheckResourceAttrSet(testAPIGatewayAPIsDataSourceName+".name", "list.0.api_desc"),
 					resource.TestCheckResourceAttrSet(testAPIGatewayAPIsDataSourceName+".name", "list.0.auth_type"),

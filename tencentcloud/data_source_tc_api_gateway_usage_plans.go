@@ -98,13 +98,13 @@ func dataSourceTencentCloudAPIGatewayUsagePlans() *schema.Resource {
 						"attach_list": {
 							Type:        schema.TypeList,
 							Computed:    true,
-							Description: "Attach service and api list.",
+							Description: "Attach service and API list.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"service_id": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "The service id.",
+										Description: "The service ID.",
 									},
 									"service_name": {
 										Type:        schema.TypeString,
@@ -114,22 +114,22 @@ func dataSourceTencentCloudAPIGatewayUsagePlans() *schema.Resource {
 									"api_id": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "The api id, This value is empty if attach service.",
+										Description: "The API ID, This value is empty if attach service.",
 									},
 									"api_name": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "The api name, This value is empty if attach service.",
+										Description: "The API name, This value is empty if attach service.",
 									},
 									"path": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "The api path, This value is empty if attach service.",
+										Description: "The API path, This value is empty if attach service.",
 									},
 									"method": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "The api method, This value is empty if attach service.",
+										Description: "The API method, This value is empty if attach service.",
 									},
 									"environment": {
 										Type:        schema.TypeString,
@@ -164,13 +164,19 @@ func dataSourceTencentCloudAPIGatewayUsagePlansRead(d *schema.ResourceData, meta
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
 
-		usagePlanId   = d.Get("usage_plan_id").(string)
-		usagePlanName = d.Get("usage_plan_name").(string)
-		infos         []*apigateway.UsagePlanStatusInfo
-		list          []map[string]interface{}
+		infos []*apigateway.UsagePlanStatusInfo
+		list  []map[string]interface{}
 
-		err error
+		usagePlanId, usagePlanName string
+		err                        error
 	)
+
+	if v, ok := d.GetOk("usage_plan_id"); ok {
+		usagePlanId = v.(string)
+	}
+	if v, ok := d.GetOk("usage_plan_name"); ok {
+		usagePlanName = v.(string)
+	}
 
 	if err = resource.Retry(readRetryTimeout, func() *resource.RetryError {
 		infos, err = apiGatewayService.DescribeUsagePlansStatus(ctx, usagePlanId, usagePlanName)

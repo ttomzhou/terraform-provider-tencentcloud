@@ -107,7 +107,7 @@ The following arguments are supported:
 
 * `api_name` - (Required) Custom api name.
 * `request_config_path` - (Required) Request frontend path configuration. Like `/user/getinfo`.
-* `service_id` - (Required, ForceNew) Which service this api belongs.Refer to resource `tencentcloud_api_gateway_service`.
+* `service_id` - (Required, ForceNew) Which service this api belongs. Refer to resource `tencentcloud_api_gateway_service`.
 * `api_desc` - (Optional) Custom api description.
 * `auth_type` - (Optional) API authentication type. Valid values: `SECRET` (key pair authentication),`NONE` (no authentication). Default value: `NONE`.
 * `enable_cors` - (Optional) Whether to enable CORS. Default value: `true`.
@@ -117,7 +117,7 @@ The following arguments are supported:
 * `response_error_codes` - (Optional) Custom error code configuration. Must keep at least one after set.
 * `response_fail_example` - (Optional) Response failure sample of custom response configuration.
 * `response_success_example` - (Optional) Successful response sample of custom response configuration.
-* `response_type` - (Optional) Return type. Valid values: HTML,JSON,TEXT,BINARY,XML,. Default value: `HTML`.
+* `response_type` - (Optional) Return type. Valid values: `HTML,JSON,TEXT,BINARY,XML,`. Default value: `HTML`.
 * `service_config_method` - (Optional) API backend service request method, such as `GET`. If `service_config_type` is `HTTP`, this parameter will be required. The frontend `request_config_method` and backend method `service_config_method` can be different.
 * `service_config_mock_return_message` - (Optional) Returned information of API backend mocking. This parameter is required when `service_config_type`  is `MOCK`.
 * `service_config_path` - (Optional) API backend service path, such as /path. If `service_config_type` is `HTTP`, this parameter will be required. The frontend `request_config_path` and backend path `service_config_path` can be different.
@@ -126,7 +126,7 @@ The following arguments are supported:
 * `service_config_scf_function_namespace` - (Optional) SCF function namespace. This parameter takes effect when  `service_config_type` is `SCF`.
 * `service_config_scf_function_qualifier` - (Optional) SCF function version. This parameter takes effect when `service_config_type`  is `SCF`.
 * `service_config_timeout` - (Optional) API backend service timeout period in seconds. Default is `5`.
-* `service_config_type` - (Optional) API backend service type. Valid values: WEBSOCKET,HTTP,SCF,MOCK. Default value: `HTTP`.
+* `service_config_type` - (Optional) API backend service type. Valid values: `WEBSOCKET,HTTP,SCF,MOCK`. Default value: `HTTP`.
 * `service_config_url` - (Optional) API backend service url. This parameter is required when `service_config_type` is `HTTP`.
 * `service_config_vpc_id` - (Optional) Unique vpc id.
 

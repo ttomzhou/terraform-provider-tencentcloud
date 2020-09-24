@@ -57,7 +57,7 @@ func testAccTestAccTencentAPIGatewayUsagePlanEnvironments() string {
 
 		data "tencentcloud_api_gateway_usage_plan_environments" "environment_test" {
 			usage_plan_id = tencentcloud_api_gateway_usage_plan_attachment.attach_service.usage_plan_id
-            bind_type     = "SERVICE"
+			bind_type     = "SERVICE"
 		}
 	`
 }

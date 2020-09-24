@@ -934,7 +934,7 @@ func (me *APIGatewayService) DescribeServiceEnvironmentStrategyList(ctx context.
 		err      error
 		response *apigateway.DescribeServiceEnvironmentStrategyResponse
 
-		limit  int64 = 20
+		limit  int64 = 100
 		offset int64 = 0
 	)
 
@@ -986,7 +986,7 @@ func (me *APIGatewayService) DescribeApiEnvironmentStrategyList(ctx context.Cont
 		err      error
 		response *apigateway.DescribeApiEnvironmentStrategyResponse
 
-		limit  int64 = 20
+		limit  int64 = 100
 		offset int64 = 0
 	)
 
@@ -1048,7 +1048,7 @@ func (me *APIGatewayService) ModifyApiEnvironmentStrategy(ctx context.Context,
 	request.EnvironmentName = &environmentName
 	request.ApiIds = append(request.ApiIds, helper.Strings(apiIDs)...)
 
-	err = resource.Retry(readRetryTimeout, func() *resource.RetryError {
+	err = resource.Retry(writeRetryTimeout, func() *resource.RetryError {
 		ratelimit.Check(request.GetAction())
 		response, err = me.client.UseAPIGatewayClient().ModifyApiEnvironmentStrategy(request)
 		if err != nil {
@@ -1086,7 +1086,7 @@ func (me *APIGatewayService) ModifyServiceEnvironmentStrategy(ctx context.Contex
 	request.Strategy = &strategy
 	request.EnvironmentNames = append(request.EnvironmentNames, helper.Strings(environmentName)...)
 
-	err = resource.Retry(readRetryTimeout, func() *resource.RetryError {
+	err = resource.Retry(writeRetryTimeout, func() *resource.RetryError {
 		ratelimit.Check(request.GetAction())
 		response, err = me.client.UseAPIGatewayClient().ModifyServiceEnvironmentStrategy(request)
 		if err != nil {
@@ -1137,7 +1137,7 @@ func (me *APIGatewayService) BindSubDomainService(ctx context.Context,
 		request.PathMappingSet = append(request.PathMappingSet, pathTmp)
 	}
 
-	err = resource.Retry(readRetryTimeout, func() *resource.RetryError {
+	err = resource.Retry(writeRetryTimeout, func() *resource.RetryError {
 		ratelimit.Check(request.GetAction())
 		_, err = me.client.UseAPIGatewayClient().BindSubDomain(request)
 		if err != nil {
@@ -1164,7 +1164,7 @@ func (me *APIGatewayService) DescribeServiceSubDomainsService(ctx context.Contex
 		err      error
 		response *apigateway.DescribeServiceSubDomainsResponse
 
-		limit  int64 = 20
+		limit  int64 = 100
 		offset int64 = 0
 	)
 	request.ServiceId = &serviceId
@@ -1257,7 +1257,7 @@ func (me *APIGatewayService) ModifySubDomainService(ctx context.Context,
 		request.PathMappingSet = append(request.PathMappingSet, pathTmp)
 	}
 
-	err = resource.Retry(readRetryTimeout, func() *resource.RetryError {
+	err = resource.Retry(writeRetryTimeout, func() *resource.RetryError {
 		ratelimit.Check(request.GetAction())
 		response, err = me.client.UseAPIGatewayClient().ModifySubDomain(request)
 		if err != nil {
@@ -1292,7 +1292,7 @@ func (me *APIGatewayService) UnBindSubDomainService(ctx context.Context,
 	request.ServiceId = &serviceId
 	request.SubDomain = &subDomain
 
-	err = resource.Retry(readRetryTimeout, func() *resource.RetryError {
+	err = resource.Retry(writeRetryTimeout, func() *resource.RetryError {
 		ratelimit.Check(request.GetAction())
 		response, err = me.client.UseAPIGatewayClient().UnBindSubDomain(request)
 		if err != nil {

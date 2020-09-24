@@ -120,7 +120,7 @@ func resourceTencentCloudAPIGatewayAPI() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Which service this api belongs.Refer to resource `tencentcloud_api_gateway_service`.",
+				Description: "Which service this api belongs. Refer to resource `tencentcloud_api_gateway_service`.",
 			},
 			"api_name": {
 				Type:        schema.TypeString,
@@ -210,7 +210,7 @@ func resourceTencentCloudAPIGatewayAPI() *schema.Resource {
 				Optional:     true,
 				Default:      API_GATEWAY_SERVICE_TYPE_HTTP,
 				ValidateFunc: validateAllowedStringValue(API_GATEWAY_SERVICE_TYPES),
-				Description:  "API backend service type. Valid values: " + strings.Join(API_GATEWAY_SERVICE_TYPES, ",") + ". Default value: `HTTP`.",
+				Description:  "API backend service type. Valid values: `" + strings.Join(API_GATEWAY_SERVICE_TYPES, ",") + "`. Default value: `HTTP`.",
 			},
 			"service_config_timeout": {
 				Type:        schema.TypeInt,
@@ -268,7 +268,7 @@ func resourceTencentCloudAPIGatewayAPI() *schema.Resource {
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validateAllowedStringValue(API_GATEWAY_API_RESPONSE_TYPES),
-				Description:  "Return type. Valid values: " + strings.Join(API_GATEWAY_API_RESPONSE_TYPES, ",") + ". Default value: `HTML`.",
+				Description:  "Return type. Valid values: `" + strings.Join(API_GATEWAY_API_RESPONSE_TYPES, ",") + "`. Default value: `HTML`.",
 			},
 			"response_success_example": {
 				Type:        schema.TypeString,
@@ -330,7 +330,7 @@ func resourceTencentCloudAPIGatewayAPI() *schema.Resource {
 	}
 }
 
-func resourceTencentCloudAPIGatewayAPICreate(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayAPICreate(d *schema.ResourceData, meta interface{}) error {
 
 	defer logElapsed("resource.tencentcloud_api_gateway_api.create")()
 
@@ -338,36 +338,37 @@ func resourceTencentCloudAPIGatewayAPICreate(data *schema.ResourceData, meta int
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
 		logId             = getLogId(contextNil)
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
-		outErr, inErr     error
+		err               error
 		response          = apigateway.NewCreateApiResponse()
 		request           = apigateway.NewCreateApiRequest()
-		serviceId         = data.Get("service_id").(string)
+		serviceId         = d.Get("service_id").(string)
 		has               bool
 	)
 
 	request.ServiceId = &serviceId
-	request.ApiName = helper.String(data.Get("api_name").(string))
-	if object, ok := data.GetOk("api_desc"); ok {
+	request.ApiName = helper.String(d.Get("api_name").(string))
+	if object, ok := d.GetOk("api_desc"); ok {
 		request.ApiDesc = helper.String(object.(string))
 	}
 
-	request.AuthType = helper.String(data.Get("auth_type").(string))
-	request.Protocol = helper.String(data.Get("protocol").(string))
-	request.EnableCORS = helper.Bool(data.Get("enable_cors").(bool))
+	request.AuthType = helper.String(d.Get("auth_type").(string))
+	request.Protocol = helper.String(d.Get("protocol").(string))
+	request.EnableCORS = helper.Bool(d.Get("enable_cors").(bool))
 	request.RequestConfig =
-		&apigateway.ApiRequestConfig{Path: helper.String(data.Get("request_config_path").(string)),
-			Method: helper.String(data.Get("request_config_method").(string))}
+		&apigateway.ApiRequestConfig{Path: helper.String(d.Get("request_config_path").(string)),
+			Method: helper.String(d.Get("request_config_method").(string))}
 
-	if object, ok := data.GetOk("request_parameters"); ok {
+	if object, ok := d.GetOk("request_parameters"); ok {
 		parameters := object.(*schema.Set).List()
 		request.RequestParameters = make([]*apigateway.RequestParameter, 0, len(parameters))
 		for _, parameter := range parameters {
 			parameterMap := parameter.(map[string]interface{})
-			requestParameter := &apigateway.RequestParameter{}
-			requestParameter.Name = helper.String(parameterMap["name"].(string))
-			requestParameter.Position = helper.String(parameterMap["position"].(string))
-			requestParameter.Type = helper.String(parameterMap["type"].(string))
-			requestParameter.Required = helper.Bool(parameterMap["required"].(bool))
+			requestParameter := &apigateway.RequestParameter{
+				Name:     helper.String(parameterMap["name"].(string)),
+				Position: helper.String(parameterMap["position"].(string)),
+				Type:     helper.String(parameterMap["type"].(string)),
+				Required: helper.Bool(parameterMap["required"].(bool)),
+			}
 			if parameterMap["desc"] != nil {
 				requestParameter.Desc = helper.String(parameterMap["desc"].(string))
 			}
@@ -378,18 +379,18 @@ func resourceTencentCloudAPIGatewayAPICreate(data *schema.ResourceData, meta int
 		}
 	}
 
-	var serviceType = data.Get("service_config_type").(string)
+	var serviceType = d.Get("service_config_type").(string)
 	request.ServiceType = &serviceType
-	request.ServiceTimeout = helper.IntInt64(data.Get("service_config_timeout").(int))
+	request.ServiceTimeout = helper.IntInt64(d.Get("service_config_timeout").(int))
 
 	switch serviceType {
 
 	case API_GATEWAY_SERVICE_TYPE_WEBSOCKET, API_GATEWAY_SERVICE_TYPE_HTTP:
-		serviceConfigProduct := data.Get("service_config_product").(string)
-		serviceConfigVpcId := data.Get("service_config_vpc_id").(string)
-		serviceConfigUrl := data.Get("service_config_url").(string)
-		serviceConfigPath := data.Get("service_config_path").(string)
-		serviceConfigMethod := data.Get("service_config_method").(string)
+		serviceConfigProduct := d.Get("service_config_product").(string)
+		serviceConfigVpcId := d.Get("service_config_vpc_id").(string)
+		serviceConfigUrl := d.Get("service_config_url").(string)
+		serviceConfigPath := d.Get("service_config_path").(string)
+		serviceConfigMethod := d.Get("service_config_method").(string)
 		if serviceConfigProduct != "" {
 			if serviceConfigProduct != "clb" {
 				return fmt.Errorf("`service_config_product` only support `clb` now")
@@ -414,16 +415,16 @@ func resourceTencentCloudAPIGatewayAPICreate(data *schema.ResourceData, meta int
 		request.ServiceConfig.Method = &serviceConfigMethod
 
 	case API_GATEWAY_SERVICE_TYPE_MOCK:
-		serviceConfigMockReturnMessage := data.Get("service_config_mock_return_message").(string)
+		serviceConfigMockReturnMessage := d.Get("service_config_mock_return_message").(string)
 		if serviceConfigMockReturnMessage == "" {
 			return fmt.Errorf("`service_config_mock_return_message` is needed if `service_config_type` is `MOCK`")
 		}
 		request.ServiceMockReturnMessage = &serviceConfigMockReturnMessage
 
 	case API_GATEWAY_SERVICE_TYPE_SCF:
-		scfFunctionName := data.Get("service_config_scf_function_name").(string)
-		scfFunctionNamespace := data.Get("service_config_scf_function_namespace").(string)
-		scfFunctionQualifier := data.Get("service_config_scf_function_qualifier").(string)
+		scfFunctionName := d.Get("service_config_scf_function_name").(string)
+		scfFunctionNamespace := d.Get("service_config_scf_function_namespace").(string)
+		scfFunctionQualifier := d.Get("service_config_scf_function_qualifier").(string)
 		if scfFunctionName == "" || scfFunctionNamespace == "" || scfFunctionQualifier == "" {
 			return fmt.Errorf("`service_config_scf_function_name`,`service_config_scf_function_namespace`,`service_config_scf_function_qualifier` is needed if `service_config_type` is `SCF`")
 		}
@@ -432,16 +433,16 @@ func resourceTencentCloudAPIGatewayAPICreate(data *schema.ResourceData, meta int
 		request.ServiceScfFunctionQualifier = &scfFunctionQualifier
 	}
 
-	request.ResponseType = helper.String(data.Get("response_type").(string))
+	request.ResponseType = helper.String(d.Get("response_type").(string))
 
-	if object, ok := data.GetOk("response_success_example"); ok {
+	if object, ok := d.GetOk("response_success_example"); ok {
 		request.ResponseSuccessExample = helper.String(object.(string))
 	}
 
-	if object, ok := data.GetOk("response_fail_example"); ok {
+	if object, ok := d.GetOk("response_fail_example"); ok {
 		request.ResponseFailExample = helper.String(object.(string))
 	}
-	if object, ok := data.GetOk("response_error_codes"); ok {
+	if object, ok := d.GetOk("response_error_codes"); ok {
 		codes := object.(*schema.Set).List()
 		request.ResponseErrorCodes = make([]*apigateway.ResponseErrorCodeReq, 0, len(codes))
 		for _, code := range codes {
@@ -466,98 +467,97 @@ func resourceTencentCloudAPIGatewayAPICreate(data *schema.ResourceData, meta int
 		}
 	}
 
-	if outErr = resource.Retry(readRetryTimeout, func() *resource.RetryError {
-		_, has, inErr = apiGatewayService.DescribeService(ctx, serviceId)
-		if inErr != nil {
-			return retryError(inErr, InternalError)
+	if err = resource.Retry(readRetryTimeout, func() *resource.RetryError {
+		_, has, err = apiGatewayService.DescribeService(ctx, serviceId)
+		if err != nil {
+			return retryError(err, InternalError)
 		}
 		return nil
-	}); outErr != nil {
-		return outErr
+	}); err != nil {
+		return err
 	}
 	if !has {
 		return fmt.Errorf("service %s not exist on server", serviceId)
 	}
 
-	outErr = resource.Retry(writeRetryTimeout, func() *resource.RetryError {
+	err = resource.Retry(writeRetryTimeout, func() *resource.RetryError {
 		ratelimit.Check(request.GetAction())
-		response, inErr = apiGatewayService.client.UseAPIGatewayClient().CreateApi(request)
-		if inErr != nil {
-			return retryError(inErr, InternalError)
+		response, err = apiGatewayService.client.UseAPIGatewayClient().CreateApi(request)
+		if err != nil {
+			return retryError(err, InternalError)
 		}
 		return nil
 	})
-	if outErr != nil {
-		return outErr
+	if err != nil {
+		return err
 	}
 
 	if response == nil || response.Response.Result == nil || response.Response.Result.ApiId == nil {
 		return fmt.Errorf("create api fail,return nil response")
 	}
 
-	data.SetId(*response.Response.Result.ApiId)
+	d.SetId(*response.Response.Result.ApiId)
 
-	return resourceTencentCloudAPIGatewayAPIRead(data, meta)
+	return resourceTencentCloudAPIGatewayAPIRead(d, meta)
 
 }
-func resourceTencentCloudAPIGatewayAPIRead(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayAPIRead(d *schema.ResourceData, meta interface{}) error {
 
 	defer logElapsed("resource.tencentcloud_api_gateway_api.read")()
-	defer inconsistentCheck(data, meta)()
+	defer inconsistentCheck(d, meta)()
 
 	var (
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
 		logId             = getLogId(contextNil)
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
+		err               error
 
-		outErr, inErr error
-
-		apiId     = data.Id()
-		serviceId = data.Get("service_id").(string)
+		apiId     = d.Id()
+		serviceId = d.Get("service_id").(string)
 
 		info apigateway.ApiInfo
 		has  bool
 	)
 
-	if outErr = resource.Retry(readRetryTimeout, func() *resource.RetryError {
-		info, has, inErr = apiGatewayService.DescribeApi(ctx, serviceId, apiId)
-		if inErr != nil {
-			return retryError(inErr, InternalError)
+	if err = resource.Retry(readRetryTimeout, func() *resource.RetryError {
+		info, has, err = apiGatewayService.DescribeApi(ctx, serviceId, apiId)
+		if err != nil {
+			return retryError(err, InternalError)
 		}
 		return nil
-	}); outErr != nil {
-		return outErr
+	}); err != nil {
+		return err
 	}
 
 	if !has {
-		data.SetId("")
+		d.SetId("")
 		return nil
 	}
 
 	errs := []error{
-		data.Set("service_id", info.ServiceId),
-		data.Set("api_name", info.ApiName),
-		data.Set("api_desc", info.ApiDesc),
-		data.Set("auth_type", info.AuthType),
-		data.Set("protocol", info.Protocol),
-		data.Set("enable_cors", info.EnableCORS),
-		data.Set("response_type", info.ResponseType),
-		data.Set("response_success_example", info.ResponseSuccessExample),
-		data.Set("response_fail_example", info.ResponseFailExample),
-		data.Set("service_config_type", info.ServiceType),
-		data.Set("service_config_timeout", info.ServiceTimeout),
-		data.Set("service_config_scf_function_name", info.ServiceScfFunctionName),
-		data.Set("service_config_scf_function_namespace", info.ServiceScfFunctionNamespace),
-		data.Set("service_config_scf_function_qualifier", info.ServiceScfFunctionQualifier),
-		data.Set("service_config_mock_return_message", info.ServiceMockReturnMessage),
-		data.Set("modify_time", info.ModifiedTime),
-		data.Set("create_time", info.CreatedTime),
+		d.Set("service_id", info.ServiceId),
+		d.Set("api_name", info.ApiName),
+		d.Set("api_desc", info.ApiDesc),
+		d.Set("auth_type", info.AuthType),
+		d.Set("protocol", info.Protocol),
+		d.Set("enable_cors", info.EnableCORS),
+		d.Set("response_type", info.ResponseType),
+		d.Set("response_success_example", info.ResponseSuccessExample),
+		d.Set("response_fail_example", info.ResponseFailExample),
+		d.Set("service_config_type", info.ServiceType),
+		d.Set("service_config_timeout", info.ServiceTimeout),
+		d.Set("service_config_scf_function_name", info.ServiceScfFunctionName),
+		d.Set("service_config_scf_function_namespace", info.ServiceScfFunctionNamespace),
+		d.Set("service_config_scf_function_qualifier", info.ServiceScfFunctionQualifier),
+		d.Set("service_config_mock_return_message", info.ServiceMockReturnMessage),
+		d.Set("modify_time", info.ModifiedTime),
+		d.Set("create_time", info.CreatedTime),
 	}
 
 	if info.RequestConfig != nil {
 		errs = append(errs,
-			data.Set("request_config_path", info.RequestConfig.Path),
-			data.Set("request_config_method", info.RequestConfig.Method))
+			d.Set("request_config_path", info.RequestConfig.Path),
+			d.Set("request_config_method", info.RequestConfig.Method))
 	}
 	if info.RequestParameters != nil {
 		list := make([]map[string]interface{}, 0, len(info.RequestParameters))
@@ -571,16 +571,16 @@ func resourceTencentCloudAPIGatewayAPIRead(data *schema.ResourceData, meta inter
 				"required":      param.Required,
 			})
 		}
-		errs = append(errs, data.Set("request_parameters", list))
+		errs = append(errs, d.Set("request_parameters", list))
 	}
 
 	if info.ServiceConfig != nil {
 		errs = append(errs,
-			data.Set("service_config_product", info.ServiceConfig.Product),
-			data.Set("service_config_vpc_id", info.ServiceConfig.UniqVpcId),
-			data.Set("service_config_url", info.ServiceConfig.Url),
-			data.Set("service_config_path", info.ServiceConfig.Path),
-			data.Set("service_config_method", info.ServiceConfig.Method))
+			d.Set("service_config_product", info.ServiceConfig.Product),
+			d.Set("service_config_vpc_id", info.ServiceConfig.UniqVpcId),
+			d.Set("service_config_url", info.ServiceConfig.Url),
+			d.Set("service_config_path", info.ServiceConfig.Path),
+			d.Set("service_config_method", info.ServiceConfig.Method))
 	}
 
 	if info.ResponseErrorCodes != nil {
@@ -594,7 +594,7 @@ func resourceTencentCloudAPIGatewayAPIRead(data *schema.ResourceData, meta inter
 				"need_convert":   code.NeedConvert,
 			})
 		}
-		errs = append(errs, data.Set("response_error_codes", list))
+		errs = append(errs, d.Set("response_error_codes", list))
 	}
 
 	for _, err := range errs {
@@ -604,7 +604,8 @@ func resourceTencentCloudAPIGatewayAPIRead(data *schema.ResourceData, meta inter
 	}
 	return nil
 }
-func resourceTencentCloudAPIGatewayAPIUpdate(data *schema.ResourceData, meta interface{}) error {
+
+func resourceTencentCloudAPIGatewayAPIUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	defer logElapsed("resource.tencentcloud_api_gateway_api.update")()
 
@@ -615,25 +616,25 @@ func resourceTencentCloudAPIGatewayAPIUpdate(data *schema.ResourceData, meta int
 		response      = apigateway.NewModifyApiResponse()
 		request       = apigateway.NewModifyApiRequest()
 
-		apiId     = data.Id()
-		serviceId = data.Get("service_id").(string)
+		apiId     = d.Id()
+		serviceId = d.Get("service_id").(string)
 	)
 
 	request.ServiceId = &serviceId
 	request.ApiId = &apiId
-	request.ApiName = helper.String(data.Get("api_name").(string))
-	if object, ok := data.GetOk("api_desc"); ok {
+	request.ApiName = helper.String(d.Get("api_name").(string))
+	if object, ok := d.GetOk("api_desc"); ok {
 		request.ApiDesc = helper.String(object.(string))
 	}
 
-	request.AuthType = helper.String(data.Get("auth_type").(string))
-	request.Protocol = helper.String(data.Get("protocol").(string))
-	request.EnableCORS = helper.Bool(data.Get("enable_cors").(bool))
+	request.AuthType = helper.String(d.Get("auth_type").(string))
+	request.Protocol = helper.String(d.Get("protocol").(string))
+	request.EnableCORS = helper.Bool(d.Get("enable_cors").(bool))
 	request.RequestConfig =
-		&apigateway.RequestConfig{Path: helper.String(data.Get("request_config_path").(string)),
-			Method: helper.String(data.Get("request_config_method").(string))}
+		&apigateway.RequestConfig{Path: helper.String(d.Get("request_config_path").(string)),
+			Method: helper.String(d.Get("request_config_method").(string))}
 
-	if object, ok := data.GetOk("request_parameters"); ok {
+	if object, ok := d.GetOk("request_parameters"); ok {
 		parameters := object.(*schema.Set).List()
 		request.RequestParameters = make([]*apigateway.ReqParameter, 0, len(parameters))
 		for _, parameter := range parameters {
@@ -653,18 +654,18 @@ func resourceTencentCloudAPIGatewayAPIUpdate(data *schema.ResourceData, meta int
 		}
 	}
 
-	var serviceType = data.Get("service_config_type").(string)
+	var serviceType = d.Get("service_config_type").(string)
 	request.ServiceType = &serviceType
-	request.ServiceTimeout = helper.IntInt64(data.Get("service_config_timeout").(int))
+	request.ServiceTimeout = helper.IntInt64(d.Get("service_config_timeout").(int))
 
 	switch serviceType {
 
 	case API_GATEWAY_SERVICE_TYPE_WEBSOCKET, API_GATEWAY_SERVICE_TYPE_HTTP:
-		serviceConfigProduct := data.Get("service_config_product").(string)
-		serviceConfigVpcId := data.Get("service_config_vpc_id").(string)
-		serviceConfigUrl := data.Get("service_config_url").(string)
-		serviceConfigPath := data.Get("service_config_path").(string)
-		serviceConfigMethod := data.Get("service_config_method").(string)
+		serviceConfigProduct := d.Get("service_config_product").(string)
+		serviceConfigVpcId := d.Get("service_config_vpc_id").(string)
+		serviceConfigUrl := d.Get("service_config_url").(string)
+		serviceConfigPath := d.Get("service_config_path").(string)
+		serviceConfigMethod := d.Get("service_config_method").(string)
 		if serviceConfigProduct != "" {
 			if serviceConfigProduct != "clb" {
 				return fmt.Errorf("`service_config_product` only support `clb` now")
@@ -688,16 +689,16 @@ func resourceTencentCloudAPIGatewayAPIUpdate(data *schema.ResourceData, meta int
 		request.ServiceConfig.Method = &serviceConfigMethod
 
 	case API_GATEWAY_SERVICE_TYPE_MOCK:
-		serviceConfigMockReturnMessage := data.Get("service_config_mock_return_message").(string)
+		serviceConfigMockReturnMessage := d.Get("service_config_mock_return_message").(string)
 		if serviceConfigMockReturnMessage == "" {
 			return fmt.Errorf("`service_config_mock_return_message` is needed if `service_config_type` is `MOCK`")
 		}
 		request.ServiceMockReturnMessage = &serviceConfigMockReturnMessage
 
 	case API_GATEWAY_SERVICE_TYPE_SCF:
-		scfFunctionName := data.Get("service_config_scf_function_name").(string)
-		scfFunctionNamespace := data.Get("service_config_scf_function_namespace").(string)
-		scfFunctionQualifier := data.Get("service_config_scf_function_qualifier").(string)
+		scfFunctionName := d.Get("service_config_scf_function_name").(string)
+		scfFunctionNamespace := d.Get("service_config_scf_function_namespace").(string)
+		scfFunctionQualifier := d.Get("service_config_scf_function_qualifier").(string)
 		if scfFunctionName == "" || scfFunctionNamespace == "" || scfFunctionQualifier == "" {
 			return fmt.Errorf("`service_config_scf_function_name`,`service_config_scf_function_namespace`,`service_config_scf_function_qualifier` is needed if `service_config_type` is `SCF`")
 		}
@@ -706,23 +707,23 @@ func resourceTencentCloudAPIGatewayAPIUpdate(data *schema.ResourceData, meta int
 		request.ServiceScfFunctionQualifier = &scfFunctionQualifier
 	}
 
-	request.ResponseType = helper.String(data.Get("response_type").(string))
+	request.ResponseType = helper.String(d.Get("response_type").(string))
 
-	if object, ok := data.GetOk("response_success_example"); ok {
+	if object, ok := d.GetOk("response_success_example"); ok {
 		request.ResponseSuccessExample = helper.String(object.(string))
 	}
 
-	if object, ok := data.GetOk("response_fail_example"); ok {
+	if object, ok := d.GetOk("response_fail_example"); ok {
 		request.ResponseFailExample = helper.String(object.(string))
 	}
 
-	oldInterface, newInterface := data.GetChange("response_error_codes")
+	oldInterface, newInterface := d.GetChange("response_error_codes")
 
 	if oldInterface.(*schema.Set).Len() > 0 && newInterface.(*schema.Set).Len() == 0 {
 		return fmt.Errorf("`response_error_codes` must keep at least one after set")
 	}
 
-	if object, ok := data.GetOk("response_error_codes"); ok {
+	if object, ok := d.GetOk("response_error_codes"); ok {
 		codes := object.(*schema.Set).List()
 		request.ResponseErrorCodes = make([]*apigateway.ResponseErrorCodeReq, 0, len(codes))
 		for _, code := range codes {
@@ -762,23 +763,23 @@ func resourceTencentCloudAPIGatewayAPIUpdate(data *schema.ResourceData, meta int
 	if response == nil {
 		return fmt.Errorf("modify api fail,return nil response")
 	}
-	return resourceTencentCloudAPIGatewayAPIRead(data, meta)
+	return resourceTencentCloudAPIGatewayAPIRead(d, meta)
 }
-func resourceTencentCloudAPIGatewayAPIDelete(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayAPIDelete(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("resource.tencentcloud_api_gateway_api.delete")()
 	var (
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
 		logId             = getLogId(contextNil)
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 
-		apiId     = data.Id()
-		serviceId = data.Get("service_id").(string)
+		apiId     = d.Id()
+		serviceId = d.Get("service_id").(string)
 	)
 
 	return resource.Retry(writeRetryTimeout, func() *resource.RetryError {
-		inErr := apiGatewayService.DeleteApi(ctx, serviceId, apiId)
-		if inErr != nil {
-			return retryError(inErr, InternalError)
+		err := apiGatewayService.DeleteApi(ctx, serviceId, apiId)
+		if err != nil {
+			return retryError(err, InternalError)
 		}
 		return nil
 	})

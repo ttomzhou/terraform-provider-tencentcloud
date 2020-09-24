@@ -56,18 +56,18 @@ data "tencentcloud_api_gateway_apis" "name" {
 
 The following arguments are supported:
 
-* `service_id` - (Required) Service id for query.
-* `api_id` - (Optional) Created api id.
-* `api_name` - (Optional) Custom api name.
+* `service_id` - (Required) Service ID for query.
+* `api_id` - (Optional) Created API ID.
+* `api_name` - (Optional) Custom API name.
 * `result_output_file` - (Optional) Used to save results.
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `list` - A list of apis. Each element contains the following attributes:
-  * `api_desc` - Custom api description.
-  * `api_name` - Custom api name.
+* `list` - A list of APIs. Each element contains the following attributes:
+  * `api_desc` - Custom API description.
+  * `api_name` - Custom API name.
   * `auth_type` - API authentication type. Valid values: `SECRET` (key pair authentication),`NONE` (no authentication).
   * `create_time` - Creation time in the format of YYYY-MM-DDThh:mm:ssZ according to ISO 8601 standard. UTC time is used.
   * `enable_cors` - Whether to enable CORS.
@@ -101,7 +101,7 @@ In addition to all arguments above, the following attributes are exported:
   * `service_config_timeout` - API backend service timeout period in seconds.
   * `service_config_type` - API backend service type.
   * `service_config_url` - API backend service url. This parameter is required when `service_config_type` is `HTTP`.
-  * `service_config_vpc_id` - Unique vpc id.
-  * `service_id` - Which service this api belongs.Refer to resource `tencentcloud_api_gateway_service`.
+  * `service_config_vpc_id` - Unique VPC ID.
+  * `service_id` - Which service this API belongs.Refer to resource `tencentcloud_api_gateway_service`.
 
 

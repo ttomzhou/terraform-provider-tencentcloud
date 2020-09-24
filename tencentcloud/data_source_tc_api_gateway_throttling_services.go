@@ -5,8 +5,8 @@ Example Usage
 
 ```hcl
 resource "tencentcloud_api_gateway_throttling_service" "service" {
-	service_id = "service-4r4xrrz4"
-	strategy = "400"
+	service_id        = "service-4r4xrrz4"
+	strategy          = "400"
 	environment_names = ["release"]
 }
 

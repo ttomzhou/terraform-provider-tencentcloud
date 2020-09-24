@@ -5,13 +5,13 @@ Example Usage
 
 ```hcl
 resource "tencentcloud_api_gateway_custom_domain" "foo" {
-	service_id 			= "service-ohxqslqe"
-	sub_domain 			= "tic-test.dnsv1.com"
-	protocol   			= "http"
-	net_type   			= "OUTER"
-	is_default_mapping  = "false"
-	default_domain 		= "service-ohxqslqe-1259649581.gz.apigw.tencentcs.com"
-	path_mappings 		= ["/good#test","/root#release"]
+	service_id         = "service-ohxqslqe"
+	sub_domain         = "tic-test.dnsv1.com"
+	protocol           = "http"
+	net_type           = "OUTER"
+	is_default_mapping = "false"
+	default_domain     = "service-ohxqslqe-1259649581.gz.apigw.tencentcs.com"
+	path_mappings      = ["/good#test","/root#release"]
 }
 
 data "tencentcloud_api_gateway_customer_domains" "id" {
@@ -38,14 +38,13 @@ func dataSourceTencentCloudAPIGatewayCustomerDomains() *schema.Resource {
 			"service_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The service id.",
+				Description: "The service ID.",
 			},
 			"result_output_file": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Used to save results.",
 			},
-
 			//Computed
 			"list": {
 				Type:        schema.TypeList,
@@ -66,7 +65,7 @@ func dataSourceTencentCloudAPIGatewayCustomerDomains() *schema.Resource {
 						"certificate_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "ID of the certificate.",
+							Description: "The certificate ID.",
 						},
 						"is_default_mapping": {
 							Type:        schema.TypeBool,
@@ -81,7 +80,7 @@ func dataSourceTencentCloudAPIGatewayCustomerDomains() *schema.Resource {
 						"net_type": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Network type, valid value: `INNER` or `OUTER`.",
+							Description: "Network type.",
 						},
 						"path_mappings": {
 							Type:        schema.TypeList,
@@ -97,7 +96,7 @@ func dataSourceTencentCloudAPIGatewayCustomerDomains() *schema.Resource {
 									"environment": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "Release environment, optional values are [test, prepub, release].",
+										Description: "Release environment.",
 									},
 								},
 							},

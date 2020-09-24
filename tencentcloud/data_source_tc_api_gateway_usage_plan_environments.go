@@ -77,7 +77,7 @@ func dataSourceTencentCloudAPIGatewayUsagePlanEnvironments() *schema.Resource {
 						"service_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The service id.",
+							Description: "The service ID.",
 						},
 						"service_name": {
 							Type:        schema.TypeString,
@@ -87,22 +87,22 @@ func dataSourceTencentCloudAPIGatewayUsagePlanEnvironments() *schema.Resource {
 						"api_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The api id, This value is empty if attach service.",
+							Description: "The API ID, This value is empty if attach service.",
 						},
 						"api_name": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The api name, This value is empty if attach service.",
+							Description: "The API name, This value is empty if attach service.",
 						},
 						"path": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The api path, This value is empty if attach service.",
+							Description: "The API path, This value is empty if attach service.",
 						},
 						"method": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The api method, This value is empty if attach service.",
+							Description: "The API method, This value is empty if attach service.",
 						},
 						"environment": {
 							Type:        schema.TypeString,

@@ -47,10 +47,9 @@ func TestAccTencentAPIGatewayThrottlingApisDataSource(t *testing.T) {
 
 func testAccTestAccTencentAPIGatewayThrottlingApis() string {
 	return `
-
 resource "tencentcloud_api_gateway_throttling_api" "service" {
-	service_id  	 = "service-4r4xrrz4"
-	strategy 	     = "400"
+	service_id       = "service-4r4xrrz4"
+	strategy         = "400"
 	environment_name = "test"
 	api_ids          = ["api-lukm33yk"]
 }
@@ -60,7 +59,7 @@ data "tencentcloud_api_gateway_throttling_apis" "id" {
 }
 
 data "tencentcloud_api_gateway_throttling_apis" "foo" {
-	service_id 		  = "service-4r4xrrz4"
+	service_id        = "service-4r4xrrz4"
 	environment_names = ["release", "test"]
 }
 `

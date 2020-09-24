@@ -6,7 +6,7 @@ Example Usage
 ```hcl
 resource "tencentcloud_api_gateway_throttling_api" "service" {
 	service_id  	 = "service-4r4xrrz4"
-	strategy 	     = "400"
+	strategy         = "400"
 	environment_name = "test"
 	api_ids          = ["api-lukm33yk"]
 }
@@ -16,7 +16,7 @@ data "tencentcloud_api_gateway_throttling_apis" "id" {
 }
 
 data "tencentcloud_api_gateway_throttling_apis" "foo" {
-	service_id 		  = tencentcloud_api_gateway_throttling_api.service.service_id
+	service_id        = tencentcloud_api_gateway_throttling_api.service.service_id
 	environment_names = ["release", "test"]
 }
 ```
