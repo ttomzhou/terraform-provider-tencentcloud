@@ -3,13 +3,16 @@ package tencentcloud
 import (
 	"context"
 	"fmt"
+	"log"
+	"strings"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	apigateway "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/apigateway/v20180808"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/errors"
+	sdkErrors "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/errors"
 	"github.com/tencentcloudstack/terraform-provider-tencentcloud/tencentcloud/connectivity"
 	"github.com/tencentcloudstack/terraform-provider-tencentcloud/tencentcloud/internal/helper"
 	"github.com/tencentcloudstack/terraform-provider-tencentcloud/tencentcloud/ratelimit"
-	"log"
 )
 
 type APIGatewayService struct {
@@ -445,37 +448,6 @@ func (me *APIGatewayService) DescribeServiceSubDomains(ctx context.Context, serv
 		}
 		offset += limit
 	}
-}
-
-func (me *APIGatewayService) DescribeServiceSubDomainMappings(ctx context.Context, serviceId, subDomain string) (info *apigateway.ServiceSubDomainMappings, errRet error) {
-	var (
-		request  = apigateway.NewDescribeServiceSubDomainMappingsRequest()
-		response *apigateway.DescribeServiceSubDomainMappingsResponse
-		err      error
-	)
-
-	request.ServiceId = &serviceId
-	request.SubDomain = &subDomain
-
-	err = resource.Retry(readRetryTimeout, func() *resource.RetryError {
-		ratelimit.Check(request.GetAction())
-		response, err = me.client.UseAPIGatewayClient().DescribeServiceSubDomainMappings(request)
-		if err != nil {
-			return retryError(err, InternalError)
-		}
-		return nil
-	})
-	if err != nil {
-		errRet = err
-		return
-	}
-	if response.Response == nil || response.Response.Result == nil {
-		errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
-		return
-	}
-
-	info = response.Response.Result
-	return
 }
 
 func (me *APIGatewayService) BindSecretId(ctx context.Context,
@@ -952,4 +924,594 @@ func (me *APIGatewayService) DescribeApisStatus(ctx context.Context,
 		}
 		offset += limit
 	}
+}
+
+//limit & domain
+func (me *APIGatewayService) DescribeServiceEnvironmentStrategyList(ctx context.Context,
+	serviceId string) (environmentList []*apigateway.ServiceEnvironmentStrategy, errRet error) {
+	var (
+		request  = apigateway.NewDescribeServiceEnvironmentStrategyRequest()
+		err      error
+		response *apigateway.DescribeServiceEnvironmentStrategyResponse
+
+		limit  int64 = 100
+		offset int64 = 0
+	)
+
+	if serviceId == "" {
+		errRet = fmt.Errorf("serviceId is must not empty.")
+		return
+	}
+
+	request.ServiceId = &serviceId
+	request.Limit = &limit
+	request.Offset = &offset
+
+	for {
+		err = resource.Retry(readRetryTimeout, func() *resource.RetryError {
+			ratelimit.Check(request.GetAction())
+			response, err = me.client.UseAPIGatewayClient().DescribeServiceEnvironmentStrategy(request)
+			if err != nil {
+				return retryError(err, InternalError)
+			}
+			return nil
+		})
+		if err != nil {
+			log.Printf("DescribeServiceEnvironmentStrategyList error: %v", err)
+			errRet = err
+			return
+		}
+
+		if response.Response == nil {
+			return nil, fmt.Errorf("Response is nil, serviceId: %s ", serviceId)
+		}
+
+		if response.Response.Result == nil {
+			return
+		}
+
+		environmentList = append(environmentList, response.Response.Result.EnvironmentList...)
+		if len(response.Response.Result.EnvironmentList) < int(limit) {
+			break
+		}
+		offset += limit
+	}
+	return
+}
+
+func (me *APIGatewayService) DescribeApiEnvironmentStrategyList(ctx context.Context,
+	serviceId string, environmentNames []string) (environmentApiList []*apigateway.ApiEnvironmentStrategy, errRet error) {
+	var (
+		request  = apigateway.NewDescribeApiEnvironmentStrategyRequest()
+		err      error
+		response *apigateway.DescribeApiEnvironmentStrategyResponse
+
+		limit  int64 = 100
+		offset int64 = 0
+	)
+
+	if serviceId == "" {
+		errRet = fmt.Errorf("serviceId is must not empty.")
+		return
+	}
+
+	request.ServiceId = &serviceId
+	if len(environmentNames) > 0 {
+		request.EnvironmentNames = append(request.EnvironmentNames, helper.Strings(environmentNames)...)
+	}
+
+	request.Limit = &limit
+	request.Offset = &offset
+
+	for {
+		err = resource.Retry(readRetryTimeout, func() *resource.RetryError {
+			ratelimit.Check(request.GetAction())
+			response, err = me.client.UseAPIGatewayClient().DescribeApiEnvironmentStrategy(request)
+			if err != nil {
+				return retryError(err, InternalError)
+			}
+			return nil
+		})
+		if err != nil {
+			log.Printf("DescribeApiEnvironmentStrategyList error: %v", err)
+			errRet = err
+			return
+		}
+
+		if response.Response == nil {
+			return nil, fmt.Errorf("Response is nil, serviceId: %s ", serviceId)
+		}
+
+		if response.Response.Result == nil || response.Response.Result.ApiEnvironmentStrategySet == nil {
+			return
+		}
+
+		environmentApiList = append(environmentApiList, response.Response.Result.ApiEnvironmentStrategySet...)
+		if len(response.Response.Result.ApiEnvironmentStrategySet) < int(limit) {
+			break
+		}
+		offset += limit
+	}
+	return
+}
+
+func (me *APIGatewayService) ModifyApiEnvironmentStrategy(ctx context.Context,
+	serviceId string, strategy int64, environmentName string, apiIDs []string) (result bool, errRet error) {
+	var (
+		request  = apigateway.NewModifyApiEnvironmentStrategyRequest()
+		err      error
+		response *apigateway.ModifyApiEnvironmentStrategyResponse
+	)
+
+	request.ServiceId = &serviceId
+	request.Strategy = &strategy
+	request.EnvironmentName = &environmentName
+	request.ApiIds = append(request.ApiIds, helper.Strings(apiIDs)...)
+
+	err = resource.Retry(writeRetryTimeout, func() *resource.RetryError {
+		ratelimit.Check(request.GetAction())
+		response, err = me.client.UseAPIGatewayClient().ModifyApiEnvironmentStrategy(request)
+		if err != nil {
+			return retryError(err, InternalError)
+		}
+		return nil
+	})
+	if err != nil {
+		log.Printf("ModifyApiEnvironmentStrategy error: %v", err)
+		errRet = err
+		return
+	}
+
+	if response.Response == nil {
+		return false, fmt.Errorf("Response is nil, serviceId: %s ", serviceId)
+	}
+
+	if response.Response.Result == nil {
+		return
+	}
+
+	result = *response.Response.Result
+	return
+}
+
+func (me *APIGatewayService) ModifyServiceEnvironmentStrategy(ctx context.Context,
+	serviceId string, strategy int64, environmentName []string) (result bool, errRet error) {
+	var (
+		request  = apigateway.NewModifyServiceEnvironmentStrategyRequest()
+		err      error
+		response *apigateway.ModifyServiceEnvironmentStrategyResponse
+	)
+
+	request.ServiceId = &serviceId
+	request.Strategy = &strategy
+	request.EnvironmentNames = append(request.EnvironmentNames, helper.Strings(environmentName)...)
+
+	err = resource.Retry(writeRetryTimeout, func() *resource.RetryError {
+		ratelimit.Check(request.GetAction())
+		response, err = me.client.UseAPIGatewayClient().ModifyServiceEnvironmentStrategy(request)
+		if err != nil {
+			return retryError(err, InternalError)
+		}
+		return nil
+	})
+	if err != nil {
+		log.Printf("ModifyServiceEnvironmentStrategy error: %v", err)
+		errRet = err
+		return
+	}
+
+	if response.Response == nil {
+		return false, fmt.Errorf("Response is nil, serviceId: %s ", serviceId)
+	}
+
+	if response.Response.Result == nil {
+		return
+	}
+
+	result = *response.Response.Result
+	return
+}
+
+func (me *APIGatewayService) BindSubDomainService(ctx context.Context,
+	serviceId, subDomain, protocol, netType, defaultDomain string, isDefaultMapping bool, certificateId string, pathMappings []string) (errRet error) {
+	var (
+		request = apigateway.NewBindSubDomainRequest()
+		err     error
+	)
+
+	request.ServiceId = &serviceId
+	request.SubDomain = &subDomain
+	request.Protocol = &protocol
+	request.NetType = &netType
+	request.NetSubDomain = &defaultDomain
+	request.IsDefaultMapping = &isDefaultMapping
+	if certificateId != "" {
+		request.CertificateId = &certificateId
+	}
+	for _, v := range pathMappings {
+		results := strings.Split(v, "#")
+		pathTmp := &apigateway.PathMapping{
+			Path:        &results[0],
+			Environment: &results[1],
+		}
+		request.PathMappingSet = append(request.PathMappingSet, pathTmp)
+	}
+
+	err = resource.Retry(writeRetryTimeout, func() *resource.RetryError {
+		ratelimit.Check(request.GetAction())
+		_, err = me.client.UseAPIGatewayClient().BindSubDomain(request)
+		if err != nil {
+			if ee, ok := err.(*sdkErrors.TencentCloudSDKError); ok {
+				if ee.Code == CertificateIdExpired || ee.Code == CertificateIdUnderVerify || ee.Code == DomainResolveError || ee.Code == ExceededDefineMappingLimit || ee.Code == DomainNeedBeian {
+					return nil
+				}
+			}
+			return retryError(err, InternalError)
+		}
+		return nil
+	})
+	if err != nil {
+		log.Printf("BindSubDomain error: %v", err)
+		errRet = err
+		return
+	}
+	return
+}
+
+func (me *APIGatewayService) DescribeServiceSubDomainsService(ctx context.Context, serviceId, subDomain string) (resultList []*apigateway.DomainSetList, errRet error) {
+	var (
+		request  = apigateway.NewDescribeServiceSubDomainsRequest()
+		err      error
+		response *apigateway.DescribeServiceSubDomainsResponse
+
+		limit  int64 = 100
+		offset int64 = 0
+	)
+	request.ServiceId = &serviceId
+	request.Limit = &limit
+	request.Offset = &offset
+	for {
+		err = resource.Retry(readRetryTimeout, func() *resource.RetryError {
+			ratelimit.Check(request.GetAction())
+			response, err = me.client.UseAPIGatewayClient().DescribeServiceSubDomains(request)
+			if err != nil {
+				return retryError(err, InternalError)
+			}
+			return nil
+		})
+		if err != nil {
+			errRet = err
+			return
+		}
+		if response.Response == nil || response.Response.Result == nil {
+			errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+			return
+		}
+
+		resultList = append(resultList, response.Response.Result.DomainSet...)
+		if len(response.Response.Result.DomainSet) < int(limit) {
+			break
+		}
+		offset += limit
+	}
+	return
+}
+
+func (me *APIGatewayService) DescribeServiceSubDomainMappings(ctx context.Context, serviceId, subDomain string) (info *apigateway.ServiceSubDomainMappings, errRet error) {
+	var (
+		request  = apigateway.NewDescribeServiceSubDomainMappingsRequest()
+		response *apigateway.DescribeServiceSubDomainMappingsResponse
+		err      error
+	)
+
+	request.ServiceId = &serviceId
+	request.SubDomain = &subDomain
+
+	err = resource.Retry(readRetryTimeout, func() *resource.RetryError {
+		ratelimit.Check(request.GetAction())
+		response, err = me.client.UseAPIGatewayClient().DescribeServiceSubDomainMappings(request)
+		if err != nil {
+			return retryError(err, InternalError)
+		}
+		return nil
+	})
+	if err != nil {
+		errRet = err
+		return
+	}
+	if response.Response == nil || response.Response.Result == nil {
+		errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+		return
+	}
+
+	info = response.Response.Result
+	return
+}
+
+func (me *APIGatewayService) ModifySubDomainService(ctx context.Context,
+	serviceId, subDomain string, isDefaultMapping bool, certificateId, protocol, netType string, pathMappings []string) (errRet error) {
+	var (
+		request  = apigateway.NewModifySubDomainRequest()
+		response *apigateway.ModifySubDomainResponse
+		err      error
+	)
+
+	request.ServiceId = &serviceId
+	request.SubDomain = &subDomain
+	request.IsDefaultMapping = &isDefaultMapping
+	if certificateId != "" {
+		request.CertificateId = &certificateId
+	}
+	if protocol != "" {
+		request.Protocol = &protocol
+	}
+	if netType != "" {
+		request.NetType = &netType
+	}
+	for _, v := range pathMappings {
+		results := strings.Split(v, "#")
+		pathTmp := &apigateway.PathMapping{
+			Path:        &results[0],
+			Environment: &results[1],
+		}
+		request.PathMappingSet = append(request.PathMappingSet, pathTmp)
+	}
+
+	err = resource.Retry(writeRetryTimeout, func() *resource.RetryError {
+		ratelimit.Check(request.GetAction())
+		response, err = me.client.UseAPIGatewayClient().ModifySubDomain(request)
+		if err != nil {
+			return retryError(err, InternalError)
+		}
+		return nil
+	})
+	if err != nil {
+		errRet = err
+		return
+	}
+	if response.Response == nil || response.Response.Result == nil {
+		errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+		return
+	}
+
+	if !(*response.Response.Result) {
+		errRet = fmt.Errorf("%s failed", request.GetAction())
+		return
+	}
+	return
+}
+
+func (me *APIGatewayService) UnBindSubDomainService(ctx context.Context,
+	serviceId, subDomain string) (errRet error) {
+	var (
+		request  = apigateway.NewUnBindSubDomainRequest()
+		response *apigateway.UnBindSubDomainResponse
+		err      error
+	)
+
+	request.ServiceId = &serviceId
+	request.SubDomain = &subDomain
+
+	err = resource.Retry(writeRetryTimeout, func() *resource.RetryError {
+		ratelimit.Check(request.GetAction())
+		response, err = me.client.UseAPIGatewayClient().UnBindSubDomain(request)
+		if err != nil {
+			return retryError(err, InternalError)
+		}
+		return nil
+	})
+	if err != nil {
+		errRet = err
+		return
+	}
+	if response.Response == nil || response.Response.Result == nil {
+		errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+		return
+	}
+
+	if !(*response.Response.Result) {
+		errRet = fmt.Errorf("%s failed", request.GetAction())
+		return
+	}
+	return
+}
+
+func (me *APIGatewayService) CreateIPStrategy(ctx context.Context,
+	serviceId, strategyName, strategyType, strategyData string) (strategyId string, errRet error) {
+	request := apigateway.NewCreateIPStrategyRequest()
+	request.ServiceId = &serviceId
+	request.StrategyName = &strategyName
+	request.StrategyType = &strategyType
+	request.StrategyData = &strategyData
+
+	ratelimit.Check(request.GetAction())
+	response, err := me.client.UseAPIGatewayClient().CreateIPStrategy(request)
+	if err != nil {
+		errRet = err
+		return
+	}
+	if response.Response.Result == nil || response.Response.Result.StrategyId == nil {
+		errRet = fmt.Errorf("TencentCloud SDK %s return empty ", request.GetAction())
+		return
+	}
+	strategyId = *response.Response.Result.StrategyId
+	return
+}
+
+func (me *APIGatewayService) DescribeIPStrategyHas(ctx context.Context,
+	serviceId, strategyId string) (has bool, errRet error) {
+
+	request := apigateway.NewDescribeIPStrategysStatusRequest()
+	request.ServiceId = &serviceId
+
+	ratelimit.Check(request.GetAction())
+	response, err := me.client.UseAPIGatewayClient().DescribeIPStrategysStatus(request)
+	if err != nil {
+		errRet = err
+		return
+	}
+	if response.Response.Result == nil {
+		errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+		return
+	}
+	for _, status := range response.Response.Result.StrategySet {
+		if *status.StrategyId == strategyId {
+			has = true
+			return
+		}
+	}
+
+	return
+}
+
+func (me *APIGatewayService) DescribeIPStrategyStatus(ctx context.Context, serviceId,
+	strategyId string) (ipStrategies *apigateway.IPStrategy, has bool, errRet error) {
+
+	var apiList []*apigateway.DesApisStatus
+	for _, env := range API_GATEWAY_SERVICE_ENVS {
+		request := apigateway.NewDescribeIPStrategyRequest()
+
+		request.ServiceId = &serviceId
+		request.StrategyId = &strategyId
+		request.EnvironmentName = &env
+
+		var (
+			limit  int64 = 20
+			offset int64 = 0
+		)
+
+		request.Limit = &limit
+		request.Offset = &offset
+
+		for {
+			ratelimit.Check(request.GetAction())
+			response, err := me.client.UseAPIGatewayClient().DescribeIPStrategy(request)
+			if err != nil {
+				errRet = err
+				return
+			}
+			if response.Response.Result == nil {
+				errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+				return
+			}
+			if len(response.Response.Result.BindApis) > 0 {
+				apiList = append(apiList, response.Response.Result.BindApis...)
+			}
+			if len(response.Response.Result.BindApis) < int(limit) {
+				has = true
+				ipStrategies = response.Response.Result
+				ipStrategies.BindApis = apiList
+				return
+			}
+			offset += limit
+		}
+	}
+	return
+}
+
+func (me *APIGatewayService) UpdateIPStrategy(ctx context.Context, serviceId, strategyId, strategyData string) (errRet error) {
+	request := apigateway.NewModifyIPStrategyRequest()
+	request.StrategyId = &strategyId
+	request.ServiceId = &serviceId
+	request.StrategyData = &strategyData
+	ratelimit.Check(request.GetAction())
+	response, err := me.client.UseAPIGatewayClient().ModifyIPStrategy(request)
+	if err != nil {
+		errRet = err
+		return
+	}
+	if response.Response.Result == nil {
+		errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+		return
+	}
+	if *response.Response.Result {
+		return
+	}
+	return fmt.Errorf("update ip strategy fail")
+}
+
+func (me *APIGatewayService) DeleteIPStrategy(ctx context.Context, serviceId, strategyId string) (errRet error) {
+	request := apigateway.NewDeleteIPStrategyRequest()
+	request.StrategyId = &strategyId
+	request.ServiceId = &serviceId
+
+	ratelimit.Check(request.GetAction())
+	response, err := me.client.UseAPIGatewayClient().DeleteIPStrategy(request)
+	if err != nil {
+		errRet = err
+		return
+	}
+	if response.Response.Result == nil {
+		errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+		return
+	}
+	if *response.Response.Result {
+		return
+	}
+	return fmt.Errorf("delete ip strategy fail")
+}
+
+func (me *APIGatewayService) CreateStrategyAttachment(ctx context.Context,
+	serviceId, strategyId, envName, bindApiId string) (has bool, errRet error) {
+	request := apigateway.NewBindIPStrategyRequest()
+	var bindarr = []*string{&bindApiId}
+	request.ServiceId = &serviceId
+	request.StrategyId = &strategyId
+	request.EnvironmentName = &envName
+	request.BindApiIds = bindarr
+
+	ratelimit.Check(request.GetAction())
+	response, err := me.client.UseAPIGatewayClient().BindIPStrategy(request)
+	if err != nil {
+		errRet = err
+		return
+	}
+	if response.Response.Result == nil {
+		errRet = fmt.Errorf("TencentCloud SDK %s return empty ", request.GetAction())
+		return
+	}
+	has = *response.Response.Result
+	return
+}
+
+func (me *APIGatewayService) DeleteStrategyAttachment(ctx context.Context,
+	serviceId, strategyId, envName, bindApiId string) (has bool, errRet error) {
+	request := apigateway.NewUnBindIPStrategyRequest()
+	var unBindarr = []*string{&bindApiId}
+	request.ServiceId = &serviceId
+	request.StrategyId = &strategyId
+	request.EnvironmentName = &envName
+	request.UnBindApiIds = unBindarr
+
+	ratelimit.Check(request.GetAction())
+	response, err := me.client.UseAPIGatewayClient().UnBindIPStrategy(request)
+	if err != nil {
+		errRet = err
+		return
+	}
+	if response.Response.Result == nil {
+		errRet = fmt.Errorf("TencentCloud SDK %s return empty ", request.GetAction())
+		return
+	}
+	has = *response.Response.Result
+	return
+}
+
+func (me *APIGatewayService) DescribeStrategyAttachment(ctx context.Context, serviceId, strategyId, bindApiId string) (notHas bool, errRet error) {
+	ipStatus, _, err := me.DescribeIPStrategyStatus(ctx, serviceId, strategyId)
+	if err != nil {
+		errRet = err
+		return
+	}
+	if ipStatus.BindApis == nil {
+		notHas = false
+		return
+	}
+	for _, bindApi := range ipStatus.BindApis {
+		if *bindApi.ApiId == bindApiId {
+			notHas = true
+			return
+		}
+	}
+	return
 }

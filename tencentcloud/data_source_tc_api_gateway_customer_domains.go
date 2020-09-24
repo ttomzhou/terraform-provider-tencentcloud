@@ -4,8 +4,18 @@ Use this data source to query api gateway domain list.
 Example Usage
 
 ```hcl
+resource "tencentcloud_api_gateway_custom_domain" "foo" {
+	service_id 			= "service-ohxqslqe"
+	sub_domain 			= "tic-test.dnsv1.com"
+	protocol   			= "http"
+	net_type   			= "OUTER"
+	is_default_mapping  = "false"
+	default_domain 		= "service-ohxqslqe-1259649581.gz.apigw.tencentcs.com"
+	path_mappings 		= ["/good#test","/root#release"]
+}
+
 data "tencentcloud_api_gateway_customer_domains" "id" {
-	service_id = "service-ohxqslqe"
+	service_id = tencentcloud_api_gateway_custom_domain.foo.service_id
 }
 ```
 */
@@ -28,14 +38,13 @@ func dataSourceTencentCloudAPIGatewayCustomerDomains() *schema.Resource {
 			"service_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The id of service.",
+				Description: "The service id.",
 			},
 			"result_output_file": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Used to save results.",
 			},
-
 			//Computed
 			"list": {
 				Type:        schema.TypeList,
@@ -56,7 +65,7 @@ func dataSourceTencentCloudAPIGatewayCustomerDomains() *schema.Resource {
 						"certificate_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The id of certificate.",
+							Description: "ID of the certificate.",
 						},
 						"is_default_mapping": {
 							Type:        schema.TypeBool,
@@ -71,7 +80,7 @@ func dataSourceTencentCloudAPIGatewayCustomerDomains() *schema.Resource {
 						"net_type": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Network type, valid value: INNER or OUTER.",
+							Description: "Network type.",
 						},
 						"path_mappings": {
 							Type:        schema.TypeList,
@@ -87,7 +96,7 @@ func dataSourceTencentCloudAPIGatewayCustomerDomains() *schema.Resource {
 									"environment": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "Release environment, optional values are [test, prepub, release].",
+										Description: "Release environment.",
 									},
 								},
 							},
@@ -99,7 +108,7 @@ func dataSourceTencentCloudAPIGatewayCustomerDomains() *schema.Resource {
 	}
 }
 
-func dataSourceTencentCloudAPIGatewayCustomerDomainRead(data *schema.ResourceData, meta interface{}) error {
+func dataSourceTencentCloudAPIGatewayCustomerDomainRead(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("data_source.tencentcloud_api_gateway_customer_domains.read")
 
 	var (
@@ -107,7 +116,7 @@ func dataSourceTencentCloudAPIGatewayCustomerDomainRead(data *schema.ResourceDat
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
 
-		serviceId = data.Get("service_id").(string)
+		serviceId = d.Get("service_id").(string)
 		infos     []*apigateway.DomainSetList
 		list      []map[string]interface{}
 
@@ -156,13 +165,13 @@ func dataSourceTencentCloudAPIGatewayCustomerDomainRead(data *schema.ResourceDat
 		})
 	}
 
-	if err = data.Set("list", list); err != nil {
+	if err = d.Set("list", list); err != nil {
 		log.Printf("[CRITAL]%s provider set list fail, reason:%s", logId, err.Error())
 	}
 
-	data.SetId(serviceId)
+	d.SetId(serviceId)
 
-	if output, ok := data.GetOk("result_output_file"); ok && output.(string) != "" {
+	if output, ok := d.GetOk("result_output_file"); ok && output.(string) != "" {
 		return writeToFile(output.(string), list)
 	}
 	return nil

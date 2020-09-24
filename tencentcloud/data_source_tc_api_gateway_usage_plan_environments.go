@@ -6,21 +6,29 @@ Example Usage
 ```hcl
 resource "tencentcloud_api_gateway_usage_plan" "plan" {
 	usage_plan_name         = "my_plan"
- 	usage_plan_desc         = "nice plan"
-  	max_request_num         = 100
-  	max_request_num_pre_sec = 10
+	usage_plan_desc         = "nice plan"
+	max_request_num         = 100
+	max_request_num_pre_sec = 10
+}
+
+resource "tencentcloud_api_gateway_service" "service" {
+	service_name = "niceservice"
+	protocol     = "http&https"
+	service_desc = "your nice service"
+	net_type     = ["INNER", "OUTER"]
+	ip_version   = "IPv4"
 }
 
 resource "tencentcloud_api_gateway_usage_plan_attachment" "attach_service" {
- 	usage_plan_id  = tencentcloud_api_gateway_usage_plan.plan.id
- 	service_id     = "service-ke4o2arm"
- 	environment    = "test"
- 	bind_type      = "SERVICE"
+	usage_plan_id  = tencentcloud_api_gateway_usage_plan.plan.id
+	service_id     = tencentcloud_api_gateway_service.service.id
+	environment    = "test"
+	bind_type      = "SERVICE"
 }
 
 data "tencentcloud_api_gateway_usage_plan_environments" "environment_test" {
 	usage_plan_id = tencentcloud_api_gateway_usage_plan_attachment.attach_service.usage_plan_id
-    bind_type     = "SERVICE"
+	bind_type     = "SERVICE"
 }
 ```
 */
@@ -28,8 +36,8 @@ package tencentcloud
 
 import (
 	"context"
-	"encoding/json"
 	"log"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -118,7 +126,7 @@ func dataSourceTencentCloudAPIGatewayUsagePlanEnvironments() *schema.Resource {
 	}
 }
 
-func dataSourceTencentCloudUsagePlanEnvironmentRead(data *schema.ResourceData, meta interface{}) error {
+func dataSourceTencentCloudUsagePlanEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("data_source.tencentcloud_api_gateway_usage_plans.read")
 
 	var (
@@ -126,8 +134,8 @@ func dataSourceTencentCloudUsagePlanEnvironmentRead(data *schema.ResourceData, m
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
 
-		usagePlanId = data.Get("usage_plan_id").(string)
-		bindType    = data.Get("bind_type").(string)
+		usagePlanId = d.Get("usage_plan_id").(string)
+		bindType    = d.Get("bind_type").(string)
 		infos       []*apigateway.UsagePlanEnvironment
 		list        []map[string]interface{}
 
@@ -158,21 +166,13 @@ func dataSourceTencentCloudUsagePlanEnvironmentRead(data *schema.ResourceData, m
 		})
 	}
 
-	byteId, err := json.Marshal(map[string]interface{}{
-		"usage_plan_id": usagePlanId,
-		"bind_type":     bindType,
-	})
-	if err != nil {
-		return err
-	}
-
-	if err = data.Set("list", list); err != nil {
+	if err = d.Set("list", list); err != nil {
 		log.Printf("[CRITAL]%s provider set list fail, reason:%s", logId, err.Error())
 	}
 
-	data.SetId(string(byteId))
+	d.SetId(strings.Join([]string{usagePlanId, bindType}, FILED_SP))
 
-	if output, ok := data.GetOk("result_output_file"); ok && output.(string) != "" {
+	if output, ok := d.GetOk("result_output_file"); ok && output.(string) != "" {
 		return writeToFile(output.(string), list)
 	}
 	return nil

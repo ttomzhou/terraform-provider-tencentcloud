@@ -1,5 +1,5 @@
 ---
-subcategory: "API Gateway"
+subcategory: "API GateWay"
 layout: "tencentcloud"
 page_title: "TencentCloud: tencentcloud_api_gateway_usage_plan_attachment"
 sidebar_current: "docs-tencentcloud-resource-api_gateway_usage_plan_attachment"
@@ -21,9 +21,17 @@ resource "tencentcloud_api_gateway_usage_plan" "plan" {
   max_request_num_pre_sec = 10
 }
 
+resource "tencentcloud_api_gateway_service" "service" {
+  service_name = "niceservice"
+  protocol     = "http&https"
+  service_desc = "your nice service"
+  net_type     = ["INNER", "OUTER"]
+  ip_version   = "IPv4"
+}
+
 resource "tencentcloud_api_gateway_usage_plan_attachment" "attach_service" {
   usage_plan_id = tencentcloud_api_gateway_usage_plan.plan.id
-  service_id    = "service-ke4o2arm"
+  service_id    = tencentcloud_api_gateway_service.service.id
   environment   = "test"
   bind_type     = "SERVICE"
 }
@@ -36,7 +44,7 @@ The following arguments are supported:
 * `environment` - (Required, ForceNew) Environment to be bound `test`,`prepub` or `release`.
 * `service_id` - (Required, ForceNew) ID of the service.
 * `usage_plan_id` - (Required, ForceNew) ID of the usage plan.
-* `api_id` - (Optional, ForceNew) API id. This parameter will be required when `bind_type` is `API`.
+* `api_id` - (Optional, ForceNew) ID of the api. This parameter will be required when `bind_type` is `API`.
 * `bind_type` - (Optional, ForceNew) Binding type. Valid values: `API`, `SERVICE` (default value).
 
 ## Attributes Reference

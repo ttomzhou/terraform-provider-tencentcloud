@@ -153,7 +153,7 @@ func resourceTencentCloudAPIGatewayUsagePlan() *schema.Resource {
 	}
 }
 
-func resourceTencentCloudAPIGatewayUsagePlanCreate(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayUsagePlanCreate(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("resource.tencentcloud_api_gateway_usage_plan.create")()
 
 	var (
@@ -161,14 +161,14 @@ func resourceTencentCloudAPIGatewayUsagePlanCreate(data *schema.ResourceData, me
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
 
-		usagePlanName       = data.Get("usage_plan_name").(string)
-		maxRequestNum       = int64(data.Get("max_request_num").(int))
-		maxRequestNumPreSec = int64(data.Get("max_request_num_pre_sec").(int))
+		usagePlanName       = d.Get("usage_plan_name").(string)
+		maxRequestNum       = int64(d.Get("max_request_num").(int))
+		maxRequestNumPreSec = int64(d.Get("max_request_num_pre_sec").(int))
 
 		usagePlanDesc *string
 	)
 
-	if v, has := data.GetOk("usage_plan_desc"); has {
+	if v, has := d.GetOk("usage_plan_desc"); has {
 		usagePlanDesc = helper.String(v.(string))
 	}
 
@@ -177,7 +177,7 @@ func resourceTencentCloudAPIGatewayUsagePlanCreate(data *schema.ResourceData, me
 		return err
 	}
 
-	data.SetId(usagePlanId)
+	d.SetId(usagePlanId)
 
 	//wait usage plan create ok
 	if outErr := resource.Retry(readRetryTimeout, func() *resource.RetryError {
@@ -194,19 +194,19 @@ func resourceTencentCloudAPIGatewayUsagePlanCreate(data *schema.ResourceData, me
 		return outErr
 	}
 
-	return resourceTencentCloudAPIGatewayUsagePlanRead(data, meta)
+	return resourceTencentCloudAPIGatewayUsagePlanRead(d, meta)
 }
 
-func resourceTencentCloudAPIGatewayUsagePlanRead(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayUsagePlanRead(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("resource.tencentcloud_api_gateway_usage_plan.read")()
-	defer inconsistentCheck(data, meta)()
+	defer inconsistentCheck(d, meta)()
 
 	var (
 		logId             = getLogId(contextNil)
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
 
-		usagePlanId = data.Id()
+		usagePlanId = d.Id()
 
 		err        error
 		info       apigateway.UsagePlanInfo
@@ -225,7 +225,7 @@ func resourceTencentCloudAPIGatewayUsagePlanRead(data *schema.ResourceData, meta
 	}
 
 	if !has {
-		data.SetId("")
+		d.SetId("")
 		return nil
 	}
 
@@ -259,20 +259,20 @@ func resourceTencentCloudAPIGatewayUsagePlanRead(data *schema.ResourceData, meta
 	}
 
 	errs := []error{
-		data.Set("usage_plan_name", info.UsagePlanName),
-		data.Set("usage_plan_desc", info.UsagePlanDesc),
-		data.Set("max_request_num", info.MaxRequestNum),
-		data.Set("max_request_num_pre_sec", info.MaxRequestNumPreSec),
-		data.Set("modify_time", info.ModifiedTime),
-		data.Set("create_time", info.CreatedTime),
-		data.Set("attach_list", infoAttachList),
+		d.Set("usage_plan_name", info.UsagePlanName),
+		d.Set("usage_plan_desc", info.UsagePlanDesc),
+		d.Set("max_request_num", info.MaxRequestNum),
+		d.Set("max_request_num_pre_sec", info.MaxRequestNumPreSec),
+		d.Set("modify_time", info.ModifiedTime),
+		d.Set("create_time", info.CreatedTime),
+		d.Set("attach_list", infoAttachList),
 	}
 
 	attach_api_keys := make([]string, 0, len(info.BindSecretIds))
 	for _, v := range info.BindSecretIds {
 		attach_api_keys = append(attach_api_keys, *v)
 	}
-	errs = append(errs, data.Set("attach_api_keys", attach_api_keys))
+	errs = append(errs, d.Set("attach_api_keys", attach_api_keys))
 
 	for _, err := range errs {
 		if err != nil {
@@ -282,24 +282,24 @@ func resourceTencentCloudAPIGatewayUsagePlanRead(data *schema.ResourceData, meta
 	return nil
 }
 
-func resourceTencentCloudAPIGatewayUsagePlanUpdate(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayUsagePlanUpdate(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("resource.tencentcloud_api_gateway_usage_plan.update")()
 
 	var (
 		logId             = getLogId(contextNil)
-		usagePlanId       = data.Id()
+		usagePlanId       = d.Id()
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
 
-		usagePlanName       = data.Get("usage_plan_name").(string)
-		maxRequestNum       = int64(data.Get("max_request_num").(int))
-		maxRequestNumPreSec = int64(data.Get("max_request_num_pre_sec").(int))
+		usagePlanName       = d.Get("usage_plan_name").(string)
+		maxRequestNum       = int64(d.Get("max_request_num").(int))
+		maxRequestNumPreSec = int64(d.Get("max_request_num_pre_sec").(int))
 
 		err           error
 		usagePlanDesc *string
 	)
 
-	if v, has := data.GetOk("usage_plan_desc"); has {
+	if v, has := d.GetOk("usage_plan_desc"); has {
 		usagePlanDesc = helper.String(v.(string))
 	}
 
@@ -321,17 +321,17 @@ func resourceTencentCloudAPIGatewayUsagePlanUpdate(data *schema.ResourceData, me
 		return err
 	}
 
-	return resourceTencentCloudAPIGatewayUsagePlanRead(data, meta)
+	return resourceTencentCloudAPIGatewayUsagePlanRead(d, meta)
 }
 
-func resourceTencentCloudAPIGatewayUsagePlanDelete(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayUsagePlanDelete(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("resource.tencentcloud_api_gateway_usage_plan.delete")()
 
 	var (
 		logId             = getLogId(contextNil)
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
-		usagePlanId       = data.Id()
+		usagePlanId       = d.Id()
 	)
 
 	return resource.Retry(writeRetryTimeout, func() *resource.RetryError {

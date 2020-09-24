@@ -55,6 +55,40 @@ Anti-DDoS(Dayu)
     tencentcloud_dayu_l4_rule
     tencentcloud_dayu_l7_rule
 
+API GateWay
+  Data Source
+	tencentcloud_api_gateway_apis
+	tencentcloud_api_gateway_services
+	tencentcloud_api_gateway_throttling_services
+	tencentcloud_api_gateway_throttling_apis
+	tencentcloud_api_gateway_usage_plans
+	tencentcloud_api_gateway_ip_strategies
+	tencentcloud_api_gateway_customer_domains
+	tencentcloud_api_gateway_usage_plan_environments
+	tencentcloud_api_gateway_api_keys
+
+  Resource
+  	tencentcloud_api_gateway_api
+	tencentcloud_api_gateway_service
+	tencentcloud_api_gateway_throttling_api
+	tencentcloud_api_gateway_throttling_service
+	tencentcloud_api_gateway_custom_domain
+	tencentcloud_api_gateway_usage_plan
+	tencentcloud_api_gateway_usage_plan_attachment
+	tencentcloud_api_gateway_ip_strategy
+	tencentcloud_api_gateway_strategy_attachment
+	tencentcloud_api_gateway_api_key
+	tencentcloud_api_gateway_api_key_attachment
+
+Audit
+  Data Source
+	tencentcloud_audit_cos_regions
+	tencentcloud_audit_key_alias
+	tencentcloud_audits
+
+  Resource
+	tencentcloud_audit
+
 Auto Scaling(AS)
   Data Source
     tencentcloud_as_scaling_configs
@@ -409,18 +443,8 @@ VPN
   Resource
     tencentcloud_vpn_customer_gateway
     tencentcloud_vpn_gateway
-    tencentcloud_vpn_connection
+	tencentcloud_vpn_connection
 
-API Gateway
-	Data Source
-		tencentcloud_api_gateway_usage_plans
-		tencentcloud_api_gateway_ip_strategies
-		tencentcloud_api_gateway_customer_domains
-		tencentcloud_api_gateway_usage_plan_environments
-
-	Resource
-		tencentcloud_api_gateway_usage_plan
-		tencentcloud_api_gateway_usage_plan_attachment
 */
 package tencentcloud
 
@@ -651,10 +675,18 @@ func Provider() terraform.ResourceProvider {
 			"tencentcloud_ckafka_users":                        dataSourceTencentCloudCkafkaUsers(),
 			"tencentcloud_ckafka_acls":                         dataSourceTencentCloudCkafkaAcls(),
 			"tencentcloud_ckafka_topics":                       dataSourceTencentCloudCkafkaTopics(),
+			"tencentcloud_audit_cos_regions":                   dataSourceTencentCloudAuditCosRegions(),
+			"tencentcloud_audit_key_alias":                     dataSourceTencentCloudAuditKeyAlias(),
+			"tencentcloud_audits":                              dataSourceTencentCloudAudits(),
 			"tencentcloud_api_gateway_usage_plans":             dataSourceTencentCloudAPIGatewayUsagePlans(),
 			"tencentcloud_api_gateway_ip_strategies":           dataSourceTencentCloudAPIGatewayIpStrategy(),
 			"tencentcloud_api_gateway_customer_domains":        dataSourceTencentCloudAPIGatewayCustomerDomains(),
 			"tencentcloud_api_gateway_usage_plan_environments": dataSourceTencentCloudAPIGatewayUsagePlanEnvironments(),
+			"tencentcloud_api_gateway_throttling_services":     dataSourceTencentCloudAPIGatewayThrottlingServices(),
+			"tencentcloud_api_gateway_throttling_apis":         dataSourceTencentCloudAPIGatewayThrottlingApis(),
+			"tencentcloud_api_gateway_apis":                    dataSourceTencentCloudAPIGatewayAPIs(),
+			"tencentcloud_api_gateway_services":                dataSourceTencentCloudAPIGatewayServices(),
+			"tencentcloud_api_gateway_api_keys":                dataSourceTencentCloudAPIGatewayAPIKeys(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -777,9 +809,19 @@ func Provider() terraform.ResourceProvider {
 			"tencentcloud_ckafka_user":                       resourceTencentCloudCkafkaUser(),
 			"tencentcloud_ckafka_acl":                        resourceTencentCloudCkafkaAcl(),
 			"tencentcloud_ckafka_topic":                      resourceTencentCloudCkafkaTopic(),
+			"tencentcloud_audit":                             resourceTencentCloudAudit(),
 			"tencentcloud_image":                             resourceTencentCloudImage(),
 			"tencentcloud_api_gateway_usage_plan":            resourceTencentCloudAPIGatewayUsagePlan(),
 			"tencentcloud_api_gateway_usage_plan_attachment": resourceTencentCloudAPIGatewayUsagePlanAttachment(),
+			"tencentcloud_api_gateway_api":                   resourceTencentCloudAPIGatewayAPI(),
+			"tencentcloud_api_gateway_service":               resourceTencentCloudAPIGatewayService(),
+			"tencentcloud_api_gateway_throttling_api":        resourceTencentCloudAPIGatewayThrottlingAPI(),
+			"tencentcloud_api_gateway_throttling_service":    resourceTencentCloudAPIGatewayThrottlingService(),
+			"tencentcloud_api_gateway_custom_domain":         resourceTencentCloudAPIGatewayCustomDomain(),
+			"tencentcloud_api_gateway_ip_strategy":           resourceTencentCloudAPIGatewayIPStrategy(),
+			"tencentcloud_api_gateway_strategy_attachment":   resourceTencentCloudAPIGatewayStrategyAttachment(),
+			"tencentcloud_api_gateway_api_key":               resourceTencentCloudAPIGatewayAPIKey(),
+			"tencentcloud_api_gateway_api_key_attachment":    resourceTencentCloudAPIGatewayAPIKeyAttachment(),
 		},
 
 		ConfigureFunc: providerConfigure,
