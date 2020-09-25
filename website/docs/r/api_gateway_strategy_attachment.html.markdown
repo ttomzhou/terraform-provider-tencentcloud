@@ -28,8 +28,8 @@ The following arguments are supported:
 
 * `bind_api_id` - (Required, ForceNew) The API that needs to be bound.
 * `environment_name` - (Required, ForceNew) The environment of the strategy association.
-* `service_id` - (Required, ForceNew) The id of the API gateway service.
-* `strategy_id` - (Required, ForceNew) The id of the API gateway strategy.
+* `service_id` - (Required, ForceNew) The ID of the API gateway service.
+* `strategy_id` - (Required, ForceNew) The ID of the API gateway strategy.
 
 ## Attributes Reference
 

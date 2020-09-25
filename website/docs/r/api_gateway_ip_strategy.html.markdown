@@ -26,9 +26,9 @@ resource "tencentcloud_api_gateway_ip_strategy" "test" {
 
 The following arguments are supported:
 
-* `service_id` - (Required, ForceNew) The id of the API gateway service.
+* `service_id` - (Required, ForceNew) The ID of the API gateway service.
 * `strategy_data` - (Required) IP address data.
-* `strategy_name` - (Required, ForceNew) User  defined strategy name.
+* `strategy_name` - (Required, ForceNew) User defined strategy name.
 * `strategy_type` - (Required, ForceNew) Blacklist or whitelist.
 
 ## Attributes Reference
@@ -37,7 +37,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - ID of the resource.
 * `create_time` - Creation time in the format of YYYY-MM-DDThh:mm:ssZ according to ISO 8601 standard. UTC time is used.
-* `strategy_id` - IP policy id.
+* `strategy_id` - IP policy ID.
 
 
 ## Import

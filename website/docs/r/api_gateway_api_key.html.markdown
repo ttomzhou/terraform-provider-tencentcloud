@@ -32,7 +32,7 @@ The following arguments are supported:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - ID of the resource.
-* `access_key_id` - Created api key id, This field is exactly the same as id.
+* `access_key_id` - Created api key id, This field is exactly the same as ID.
 * `access_key_secret` - Created api key.
 * `create_time` - Creation time in the format of YYYY-MM-DDThh:mm:ssZ according to ISO 8601 standard. UTC time is used.
 * `modify_time` - Last modified time in the format of YYYY-MM-DDThh:mm:ssZ according to ISO 8601 standard. UTC time is used.

@@ -30,7 +30,6 @@ api gateway access key can be imported using the id, e.g.
 ```
 $ terraform import tencentcloud_api_gateway_api_key_attachment.test '{"api_key_id":"AKID110b8Rmuw7t0fP1N8bi809n327023Is7xN8f","usage_plan_id":"usagePlan-gyeafpab"}]'
 ```
-
 */
 package tencentcloud
 
@@ -69,16 +68,15 @@ func resourceTencentCloudAPIGatewayAPIKeyAttachment() *schema.Resource {
 	}
 }
 
-func resourceTencentCloudAPIGatewayAPIKeyAttachmentCreate(data *schema.ResourceData, meta interface{}) error {
-
+func resourceTencentCloudAPIGatewayAPIKeyAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("resource.tencentcloud_api_gateway_api_key_attachment.create")()
 
 	var (
 		logId             = getLogId(contextNil)
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
-		apiKeyId          = data.Get("api_key_id").(string)
-		usagePlanId       = data.Get("usage_plan_id").(string)
+		apiKeyId          = d.Get("api_key_id").(string)
+		usagePlanId       = d.Get("usage_plan_id").(string)
 		has               bool
 		inErr, outErr     error
 	)
@@ -129,7 +127,7 @@ func resourceTencentCloudAPIGatewayAPIKeyAttachmentCreate(data *schema.ResourceD
 	if outErr != nil {
 		return outErr
 	}
-	data.SetId(string(byteId))
+	d.SetId(string(byteId))
 
 	//waiting bind success
 	var info apigateway.UsagePlanInfo
@@ -157,16 +155,15 @@ func resourceTencentCloudAPIGatewayAPIKeyAttachmentCreate(data *schema.ResourceD
 		return fmt.Errorf("usage plan %s has been deleted", usagePlanId)
 	}
 
-	data.SetId(string(byteId))
+	d.SetId(string(byteId))
 
-	return resourceTencentCloudAPIGatewayAPIKeyAttachmentRead(data, meta)
-
+	return resourceTencentCloudAPIGatewayAPIKeyAttachmentRead(d, meta)
 }
 
-func resourceTencentCloudAPIGatewayAPIKeyAttachmentRead(data *schema.ResourceData, meta interface{}) error {
-
+func resourceTencentCloudAPIGatewayAPIKeyAttachmentRead(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("resource.tencentcloud_api_gateway_api_key_attachment.create")()
-	defer inconsistentCheck(data, meta)()
+	defer inconsistentCheck(d, meta)()
+
 	var (
 		logId             = getLogId(contextNil)
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
@@ -179,13 +176,13 @@ func resourceTencentCloudAPIGatewayAPIKeyAttachmentRead(data *schema.ResourceDat
 	)
 
 	var idMaps = make(map[string]string, 2)
-	if outErr = json.Unmarshal([]byte(data.Id()), &idMaps); outErr != nil {
+	if outErr = json.Unmarshal([]byte(d.Id()), &idMaps); outErr != nil {
 		return fmt.Errorf("id is broken,%s", outErr.Error())
 	}
 	apiKeyId := idMaps["api_key_id"]
 	usagePlanId := idMaps["usage_plan_id"]
 	if apiKeyId == "" || usagePlanId == "" {
-		return fmt.Errorf("id is broken,%s", data.Id())
+		return fmt.Errorf("id is broken,%s", d.Id())
 	}
 
 	if outErr = resource.Retry(readRetryTimeout, func() *resource.RetryError {
@@ -199,23 +196,22 @@ func resourceTencentCloudAPIGatewayAPIKeyAttachmentRead(data *schema.ResourceDat
 	}
 
 	if !has {
-		data.SetId("")
+		d.SetId("")
 		return nil
 	}
 	for _, v := range info.BindSecretIds {
 		if *v == apiKeyId {
-			if outErr = data.Set("api_key_id", apiKeyId); outErr != nil {
+			if outErr = d.Set("api_key_id", apiKeyId); outErr != nil {
 				return outErr
 			}
-			return data.Set("usage_plan_id", usagePlanId)
+			return d.Set("usage_plan_id", usagePlanId)
 		}
 	}
-	data.SetId("")
+	d.SetId("")
 	return nil
-
 }
 
-func resourceTencentCloudAPIGatewayAPIKeyAttachmentDelete(data *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudAPIGatewayAPIKeyAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("resource.tencentcloud_api_gateway_api_key_attachment.delete")()
 
 	var (
@@ -229,13 +225,13 @@ func resourceTencentCloudAPIGatewayAPIKeyAttachmentDelete(data *schema.ResourceD
 		has           bool
 	)
 	var idMaps = make(map[string]string, 2)
-	if outErr = json.Unmarshal([]byte(data.Id()), &idMaps); outErr != nil {
+	if outErr = json.Unmarshal([]byte(d.Id()), &idMaps); outErr != nil {
 		return fmt.Errorf("id is broken,%s", outErr.Error())
 	}
 	apiKeyId := idMaps["api_key_id"]
 	usagePlanId := idMaps["usage_plan_id"]
 	if apiKeyId == "" || usagePlanId == "" {
-		return fmt.Errorf("id is broken,%s", data.Id())
+		return fmt.Errorf("id is broken,%s", d.Id())
 	}
 
 	if outErr = resource.Retry(readRetryTimeout, func() *resource.RetryError {
@@ -270,5 +266,4 @@ func resourceTencentCloudAPIGatewayAPIKeyAttachmentDelete(data *schema.ResourceD
 		return outErr
 	}
 	return nil
-
 }
