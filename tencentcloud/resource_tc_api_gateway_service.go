@@ -265,6 +265,7 @@ func resourceTencentCloudAPIGatewayServiceCreate(d *schema.ResourceData, meta in
 	return resourceTencentCloudAPIGatewayServiceRead(d, meta)
 
 }
+
 func resourceTencentCloudAPIGatewayServiceRead(d *schema.ResourceData, meta interface{}) error {
 
 	defer logElapsed("resource.tencentcloud_api_gateway_service.create")()
@@ -378,6 +379,7 @@ func resourceTencentCloudAPIGatewayServiceRead(d *schema.ResourceData, meta inte
 
 	return nil
 }
+
 func resourceTencentCloudAPIGatewayServiceUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	defer logElapsed("resource.tencentcloud_api_gateway_service.update")()

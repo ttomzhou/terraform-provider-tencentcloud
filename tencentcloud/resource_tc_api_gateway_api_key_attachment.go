@@ -162,6 +162,7 @@ func resourceTencentCloudAPIGatewayAPIKeyAttachmentCreate(data *schema.ResourceD
 	return resourceTencentCloudAPIGatewayAPIKeyAttachmentRead(data, meta)
 
 }
+
 func resourceTencentCloudAPIGatewayAPIKeyAttachmentRead(data *schema.ResourceData, meta interface{}) error {
 
 	defer logElapsed("resource.tencentcloud_api_gateway_api_key_attachment.create")()

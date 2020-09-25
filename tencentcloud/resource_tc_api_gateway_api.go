@@ -499,8 +499,8 @@ func resourceTencentCloudAPIGatewayAPICreate(d *schema.ResourceData, meta interf
 	d.SetId(*response.Response.Result.ApiId)
 
 	return resourceTencentCloudAPIGatewayAPIRead(d, meta)
-
 }
+
 func resourceTencentCloudAPIGatewayAPIRead(d *schema.ResourceData, meta interface{}) error {
 
 	defer logElapsed("resource.tencentcloud_api_gateway_api.read")()
@@ -765,6 +765,7 @@ func resourceTencentCloudAPIGatewayAPIUpdate(d *schema.ResourceData, meta interf
 	}
 	return resourceTencentCloudAPIGatewayAPIRead(d, meta)
 }
+
 func resourceTencentCloudAPIGatewayAPIDelete(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("resource.tencentcloud_api_gateway_api.delete")()
 	var (
@@ -783,5 +784,4 @@ func resourceTencentCloudAPIGatewayAPIDelete(d *schema.ResourceData, meta interf
 		}
 		return nil
 	})
-
 }

@@ -90,7 +90,7 @@ func testApiIPStrategyExists(n string) resource.TestCheckFunc {
 
 const testApiIPStrategy_basic = `
 resource "tencentcloud_api_gateway_ip_strategy" "test"{
-    service_id = "service-ohxqslqe"
+    service_id    = "service-ohxqslqe"
     strategy_name = "tf_test"
     strategy_type = "BLACK"
     strategy_data = "9.9.9.9"

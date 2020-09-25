@@ -71,14 +71,13 @@ resource "tencentcloud_api_gateway_api" "mock" {
 }
 
 resource "tencentcloud_api_gateway_api" "websock" {
-  service_id            = tencentcloud_api_gateway_service.service.id
-  api_name              = "websock_hello"
-  api_desc              = "my websock hello api"
-  auth_type             = "NONE"
-  protocol              = "WEBSOCKET"
-  request_config_path   = "/user/websock"
-  request_config_method = "GET"
-
+  service_id             = tencentcloud_api_gateway_service.service.id
+  api_name               = "websock_hello"
+  api_desc               = "my websock hello api"
+  auth_type              = "NONE"
+  protocol               = "WEBSOCKET"
+  request_config_path    = "/user/websock"
+  request_config_method  = "GET"
   service_config_type    = "WEBSOCKET"
   service_config_timeout = 15
   service_config_url     = "ws://www.qq.com"
@@ -105,13 +104,13 @@ data "tencentcloud_api_gateway_services" "ids" {
 }
 
 resource "tencentcloud_api_gateway_custom_domain" "service" {
-  service_id 		 = "service-ohxqslqe"
+  service_id         = "service-ohxqslqe"
   sub_domain         = "tic-test.dnsv1.com"
   protocol           = "http"
   net_type           = "OUTER"
   is_default_mapping = "false"
-  default_domain 	 = "service-ohxqslqe-1259649581.gz.apigw.tencentcs.com"
-  path_mappings 	 = ["/good#test","/root#release"]
+  default_domain     = "service-ohxqslqe-1259649581.gz.apigw.tencentcs.com"
+  path_mappings      = ["/good#test","/root#release"]
 }
 
 resource "tencentcloud_api_gateway_throttling_api" "service" {
@@ -126,7 +125,7 @@ data "tencentcloud_api_gateway_throttling_apis" "id" {
 }
 
 data "tencentcloud_api_gateway_throttling_apis" "foo" {
-  service_id 		    = tencentcloud_api_gateway_throttling_api.service.service_id
+  service_id          = tencentcloud_api_gateway_throttling_api.service.service_id
   environment_names   = ["release", "test"]
 }
 
@@ -150,7 +149,7 @@ data "tencentcloud_api_gateway_throttling_services" "id" {
 }
 
 resource "tencentcloud_api_gateway_ip_strategy" "test"{
-  service_id 	= "service-ohxqslqe"
+  service_id    = "service-ohxqslqe"
   strategy_name = "tf_test"
   strategy_type = "BLACK"
   strategy_data = "9.9.9.9"

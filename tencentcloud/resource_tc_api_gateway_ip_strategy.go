@@ -86,6 +86,7 @@ func resourceTencentCloudAPIGatewayIPStrategy() *schema.Resource {
 		},
 	}
 }
+
 func resourceTencentCloudAPIGatewayIPStrategyCreate(d *schema.ResourceData, meta interface{}) error {
 	defer logElapsed("resource.tencentcloud_api_gateway_ip_strategy.create")()
 
